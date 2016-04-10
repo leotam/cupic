@@ -28,6 +28,7 @@ NOTE: This test was migrated from the old repo and could use some refactoring.
 from datetime import datetime
 
 import numpy
+import cupy 
 import unittest2 as unittest
 from pkg_resources import resource_filename
 
@@ -68,11 +69,11 @@ class FiltersTest(unittest.TestCase):
 
     # Test #1 -- no deltas
     # Make sure we get a reset when the gym changes
-    resetOut = numpy.zeros((1,), dtype='float')
-    sequenceIdOut = numpy.zeros((1,), dtype='float')
-    dataOut = numpy.zeros((n,), dtype='float')
-    sourceOut = numpy.zeros((1,), dtype='float')
-    categoryOut = numpy.zeros((1,), dtype='float')
+    resetOut = cupy.zeros((1,), dtype='float')
+    sequenceIdOut = cupy.zeros((1,), dtype='float')
+    dataOut = cupy.zeros((n,), dtype='float')
+    sourceOut = cupy.zeros((1,), dtype='float')
+    categoryOut = cupy.zeros((1,), dtype='float')
 
     outputs = dict(resetOut=resetOut,
                    sourceOut = sourceOut,

@@ -26,6 +26,7 @@ import sys
 import copy
 from datetime import datetime
 import numpy
+import cupy
 from mock import Mock, patch, ANY, call
 
 from nupic.support.unittesthelpers.testcasebase import (unittest,
@@ -578,7 +579,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
     getAnomalyVector.return_value = "Vector"
     values = {
       'categoryRecencyList': [1, 2, 3, 5, 6, 7, 8, 9],
-      'latestDists': numpy.array([0.7, 0.2, 0.5, 1, 0.3, 0.2, 0.1]),
+      'latestDists': cupy.array([0.7, 0.2, 0.5, 1, 0.3, 0.2, 0.1]),
       'categories': ['A','B','C','D','E','F','G']
     }
     classifier = self.helper.clamodel._getAnomalyClassifier().getSelf()
@@ -621,7 +622,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
         'activeOutputCount': 5
       },
       'output': {
-        'bottomUpOut': numpy.array([1,1,0,0,1])
+        'bottomUpOut': cupy.array([1,1,0,0,1])
       }
     }
     tpVals = {
@@ -630,8 +631,8 @@ class CLAClassifierHelperTest(unittest.TestCase):
         'columnCount': 2
       },
       'output': {
-        'lrnActive': numpy.array([1,0,0,1]),
-        'topDownOut': numpy.array([1,0,0,0,1])
+        'lrnActive': cupy.array([1,0,0,1]),
+        'topDownOut': cupy.array([1,0,0,0,1])
       }
     }
     self.helper.clamodel.getParameter.side_effect = modelParams.get
@@ -656,11 +657,11 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
     # Test SP and TP Column Error vector
     self.helper._vectorType = 'sp_tpe'
-    self.helper._prevPredictedColumns = numpy.array([1,0,0,0,1]).nonzero()[0]
+    self.helper._prevPredictedColumns = cupy.array([1,0,0,0,1]).nonzero()[0]
     vector = self.helper._constructClassificationRecord()
     self.assertEqual(vector.anomalyVector, [0, 1, 4])
 
-    self.helper._prevPredictedColumns = numpy.array([1,0,1,0,0]).nonzero()[0]
+    self.helper._prevPredictedColumns = cupy.array([1,0,1,0,0]).nonzero()[0]
     vector = self.helper._constructClassificationRecord()
     self.assertEqual(vector.anomalyVector, [0, 1, 4, 7])
 

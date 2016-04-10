@@ -22,7 +22,7 @@
 
 """Unit tests for delta encoder"""
 
-import numpy as np
+import cupy as np
 import tempfile
 import unittest
 
@@ -60,7 +60,7 @@ class DeltaEncoderTest(unittest.TestCase):
                      res[0].value)
     self.assertEqual(self._dencoder.topDownCompute(encarr)[0].scalar,
                      res[0].scalar)
-    self.assertTrue(np.array_equal(
+    self.assertTrue(numpy.array_equal(
       self._dencoder.topDownCompute(encarr)[0].encoding,
       res[0].encoding))
 
@@ -76,7 +76,7 @@ class DeltaEncoderTest(unittest.TestCase):
       self._adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
       delencode = np.zeros(100)
       self._dencoder.encodeIntoArray(feedIn[i], delencode, learn=True)
-      self.assertTrue(np.array_equal(delencode[0], aseencode[0]))
+      self.assertTrue(numpy.array_equal(delencode[0], aseencode[0]))
 
 
   def testLockingState(self):
@@ -96,7 +96,7 @@ class DeltaEncoderTest(unittest.TestCase):
       else:
         self._dencoder.encodeIntoArray(expectedOut[i], delencode, learn=True)
 
-      self.assertTrue(np.array_equal(delencode[0], aseencode[0]))
+      self.assertTrue(numpy.array_equal(delencode[0], aseencode[0]))
 
 
   def testEncodeInvalidInputType(self):
@@ -151,7 +151,7 @@ class DeltaEncoderTest(unittest.TestCase):
 
     delencode2 = np.zeros(100)
     encoder.encodeIntoArray(feedIn[-1], delencode2, learn=True)
-    self.assertTrue(np.array_equal(delencode, delencode2))
+    self.assertTrue(numpy.array_equal(delencode, delencode2))
 
 
 

@@ -25,6 +25,7 @@
 import sys
 
 import numpy
+import cupy
 import unittest2 as unittest
 
 from nupic.bindings.math import SM32
@@ -42,7 +43,7 @@ class TestCastMode(unittest.TestCase):
     This code will throw an exception if the error exists.
     """
     hist = SM32(5, 10)
-    t = numpy.array([0, 0, 1, 0, 1, 0, 0, 1, 0, 1], dtype='float32')
+    t = cupy.array([0, 0, 1, 0, 1, 0, 0, 1, 0, 1], dtype='float32')
 
     hist.setRowFromDense(0, t)
     hist.setRowFromDense(1, t)

@@ -25,6 +25,8 @@
 import sys
 import numpy
 from numpy import *
+
+import cupy
 import math
 import os
 import cPickle
@@ -35,7 +37,7 @@ import unittest2 as unittest
 
 from nupic.bindings.math import *
 
-rgen = numpy.random.RandomState(37)
+rgen = cupy.random.RandomState(37)
 
 
 
@@ -90,13 +92,13 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(2,10)
       a = rgen.randint(0,100,(m,n)).astype(float32)
-      a[numpy.where(a < 50)] = 0
+      a[cupy.where(a < 50)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       a /= sum(a)
       sm = SM32(a)
 
-      ans_ind = numpy.where(a > 0)
+      ans_ind = cupy.where(a > 0)
       ans_val = a[ans_ind]
       ans = [(i,j,v) for i,j,v in zip(ans_ind[0], ans_ind[1], ans_val)]
 
@@ -125,14 +127,14 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(2,10)
       a = rgen.randint(0,100,(m,n)).astype(float32)
-      a[numpy.where(a < 25)] = 0
+      a[cupy.where(a < 25)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       a[0,0] = 1
       a[m-1] = 0
       a[:,n-1] = 0
       a /= sum(a)
-      nz = numpy.where(a > 0)
+      nz = cupy.where(a > 0)
       nz_val = a[nz]
 
       sm = SM32(1,1)
@@ -246,7 +248,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (sm.toDense() != ans).any():
         error('setSlice/sparse')
 
-    # With a numpy array
+    # With a cupy array
     for i in range(5):
 
       m = rgen.randint(10,20)
@@ -281,7 +283,7 @@ class SparseMatrixTest(unittest.TestCase):
 
     def algo(s, x, seg_size, small_val):
 
-      result = numpy.ones(s.nRows())
+      result = cupy.ones(s.nRows())
 
       for row in range(s.nRows()):
         seg_begin = 0; seg_end = seg_size
@@ -304,19 +306,19 @@ class SparseMatrixTest(unittest.TestCase):
           seg_begin += seg_size; seg_end += seg_size
 
       k = float(s.nCols() / seg_size)
-      result = numpy.power(result, 1.0 / k)
+      result = cupy.power(result, 1.0 / k)
 
       too_small = True
       for i in range(s.nRows()):
         if result[i] > small_val:
           too_small = False
       if too_small:
-        result = numpy.zeros(s.nRows())
+        result = cupy.zeros(s.nRows())
 
       return result
 
-    s = SM32(numpy.zeros((8,8)))
-    x = .9*numpy.ones((8))
+    s = SM32(cupy.zeros((8,8)))
+    x = .9*cupy.ones((8))
     if (kthroot_product(s, 4, x, 1e-6) - algo(s, x, 4, 1e-6) > 1e-6).any():
       error('kthroot_product 1')
 
@@ -360,10 +362,10 @@ class SparseMatrixTest(unittest.TestCase):
       nrows = rgen.randint(1,5)
       ncols = rgen.randint(5,12)
       a = rgen.randint(0,100,(nrows,ncols))
-      a[numpy.where(a < 80)] = 0
+      a[cupy.where(a < 80)] = 0
       m = SM32(a)
       m.transpose()
-      a = numpy.transpose(a)
+      a = cupy.transpose(a)
       if (a != m.toDense()).any():
         error('transpose 1')
 
@@ -371,11 +373,11 @@ class SparseMatrixTest(unittest.TestCase):
       nrows = rgen.randint(1,5)
       ncols = rgen.randint(5,12)
       a = rgen.randint(0,100,(nrows,ncols))
-      a[numpy.where(a < 80)] = 0
+      a[cupy.where(a < 80)] = 0
       m = SM32(a)
       m.decompact()
       m.transpose()
-      a = numpy.transpose(a)
+      a = cupy.transpose(a)
       if (a != m.toDense()).any():
         error('transpose 2')
 
@@ -383,11 +385,11 @@ class SparseMatrixTest(unittest.TestCase):
       nrows = rgen.randint(1,5)
       ncols = rgen.randint(5,12)
       a = rgen.randint(0,100,size=(nrows,ncols))
-      a[numpy.where(a < 80)] = 0
+      a[cupy.where(a < 80)] = 0
       m = SM32(a)
       mt = m.getTransposed()
-      a = numpy.transpose(a)
-      if numpy.any(a != mt.toDense()):
+      a = cupy.transpose(a)
+      if cupy.any(a != mt.toDense()):
         error('transpose 3')
 
 
@@ -424,14 +426,14 @@ class SparseMatrixTest(unittest.TestCase):
     for i in range(5):
       a = rgen.randint(0,2,(6,8))
       b = rgen.randint(0,10,(8,4))
-      c = numpy.dot(a,b)
+      c = cupy.dot(a,b)
       d = SM32(a).rightDenseMatProd(b)
       if (c != d).any():
         error('rightDenseMatProd')
 
       a = rgen.randint(0,2,(6,4))
       b = rgen.randint(0,10,(8,6))
-      c = numpy.dot(b,a)
+      c = cupy.dot(b,a)
       d = SM32(a).leftDenseMatProd(b)
       if (c != d).any():
         error('leftDenseMatProd')
@@ -469,7 +471,7 @@ class SparseMatrixTest(unittest.TestCase):
     for i in range(5):
       a = rgen.randint(0,2,(6,8))
       b = rgen.randint(0,10,(8,4))
-      c = numpy.dot(a,b)
+      c = cupy.dot(a,b)
       d = SM32(a).rightDenseMatProdAtNZ(b)
       if (c != d).any():
         error('rightDenseMatProdAtNZ')
@@ -479,10 +481,10 @@ class SparseMatrixTest(unittest.TestCase):
 
     print 'Testing denseMatExtract'
 
-    a = numpy.zeros((4,4))
+    a = cupy.zeros((4,4))
     a[1,0] = 1; a[2,1] = 1; a[3,2] = 1
     b = rgen.randint(0,10,(4,4))
-    c = numpy.dot(a,b)
+    c = cupy.dot(a,b)
     d = SM32(a).denseMatExtract(b)
     if (c != d).any():
       error('denseMatExtract')
@@ -495,14 +497,14 @@ class SparseMatrixTest(unittest.TestCase):
     for k in range(5):
       a = rgen.randint(0,100,(4,4))
       b = SM32(a)
-      a[numpy.where(a < 50)] = 0
+      a[cupy.where(a < 50)] = 0
       b.threshold(50)
       for i in range(4):
         for j in range(4):
           if int(a[i,j]) != int(b[i,j]):
             error('threshold 1')
 
-      l = numpy.where((a > 0) & (a < 75))
+      l = cupy.where((a > 0) & (a < 75))
       ac = copy.deepcopy(a)
       a[l] = 0
       c = b.threshold(75, True)
@@ -523,7 +525,7 @@ class SparseMatrixTest(unittest.TestCase):
       a[where(a < 40)] = 0
       a[1,1] = 50
       b = SM32(a)
-      a[numpy.where(a >= 50)] = 50
+      a[cupy.where(a >= 50)] = 50
       b.clip(50, True)
       if (b.toDense() != a).any():
         error('clip above')
@@ -551,7 +553,7 @@ class SparseMatrixTest(unittest.TestCase):
       a[where(a < 40)] = 0
       a[1,1] = 50
       b = SM32(a)
-      a[numpy.where(a >= 50)] = 50
+      a[cupy.where(a >= 50)] = 50
       for i in range(10):
         b.clipCol(i, 50, True)
       if (b.toDense() != a).any():
@@ -584,7 +586,7 @@ class SparseMatrixTest(unittest.TestCase):
       a[1,3] = 70
       a[1,4] = 30
       b = SM32(a)
-      a[numpy.where(a >= 60)] = 60
+      a[cupy.where(a >= 60)] = 60
       for i in range(10):
         for j in range(10):
           if a[i,j] > 0 and a[i,j] < 50:
@@ -619,7 +621,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing increment'
 
     a = rgen.randint(0,100,(4,4))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
     for i in range(5):
       old_value = m.get(i,i) if i < 4 else 0
@@ -633,7 +635,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing incrementOnOuterWNZ'
 
     a = rgen.randint(0,100,(4,4))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
     m.incrementOnOuterWNZ([1,3],[0,2])
     for i in [1,3]:
@@ -648,7 +650,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing boxMin, boxMax'
 
     a = rgen.randint(0,100,(11,8))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
     box_width = 4
     box_height = 3
@@ -681,7 +683,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing getSlice'
 
     a = rgen.randint(0,100,(11,8))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
 
     for i in range(11):
@@ -708,7 +710,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing addTwoRows'
 
     a = rgen.randint(0,100,(11,8))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
 
     for i in range(11):
@@ -724,7 +726,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing setRowFromDense'
 
     a = rgen.randint(0,100,(11,8))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
 
     for i in range(11):
@@ -740,7 +742,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing setRowFromSparse'
 
     a = rgen.randint(0,100,(11,8))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
 
     for i in range(11):
@@ -760,9 +762,9 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing copyRow'
 
     a = rgen.randint(0,100,(11,8))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     b = rgen.randint(0,100,(11,8))
-    b[numpy.where(a < 75)] = 0
+    b[cupy.where(a < 75)] = 0
     m1 = SM32(a) ; m2 = SM32(b)
 
     for i in range(11):
@@ -779,7 +781,7 @@ class SparseMatrixTest(unittest.TestCase):
 
     for k in range(5):
       a = rgen.randint(0,100,(11,11))
-      a[numpy.where(a < 90)] = 0
+      a[cupy.where(a < 90)] = 0
       m = SM32(a)
       zrc = m.zeroRowAndCol()
       zrc2 = []
@@ -797,7 +799,7 @@ class SparseMatrixTest(unittest.TestCase):
     for k in range(5):
 
       a = rgen.randint(0,100,(12,13))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       m = SM32(a)
       to_del = set(rgen.randint(0,12,(5)));
       m.setColsToZero(list(to_del))
@@ -813,16 +815,16 @@ class SparseMatrixTest(unittest.TestCase):
 
     for i in range(5):
       a = rgen.randint(0,100,(12,13))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       m = SM32(a)
       b = rgen.randint(0,100,(11,12))
       c = m.leftDenseMatSumAtNZ(b)
-      a01 = numpy.zeros(a.shape)
+      a01 = cupy.zeros(a.shape)
       for i in range(12):
         for j in range(13):
           if a[i,j] > 0:
             a01[i,j] = 1
-      d = numpy.dot(b,a01)
+      d = cupy.dot(b,a01)
       if (c != d).any():
         error('leftDenseMatSumAtNZ')
 
@@ -832,7 +834,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing elementRowMultiply'
 
     a = rgen.randint(0,100,(11,12))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
     s = rgen.randint(0,10,(12))
     for i in range(m.nRows()):
@@ -848,7 +850,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing elementColMultiply'
 
     a = rgen.randint(0,100,(11,12))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
     s = rgen.randint(0,10,(11))
     for i in range(m.nCols()):
@@ -864,7 +866,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing scaleRows'
 
     a = rgen.randint(0,100,(11,12))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
     s = rgen.randint(0,10,(11))
     m.scaleRows(s)
@@ -880,7 +882,7 @@ class SparseMatrixTest(unittest.TestCase):
     print 'Testing scaleCols'
 
     a = rgen.randint(0,100,(11,12))
-    a[numpy.where(a < 75)] = 0
+    a[cupy.where(a < 75)] = 0
     m = SM32(a)
     s = rgen.randint(0,10,(12))
     m.scaleCols(s)
@@ -899,7 +901,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(1,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       mat = SM32(a)
       mat.setDiagonalToZero()
       for i in range(min(m,n)):
@@ -915,7 +917,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(1,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       mat = SM32(a)
       mat.setDiagonalToVal(-1)
       for i in range(min(m,n)):
@@ -931,7 +933,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(1,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       mat = SM32(a)
       vals = rgen.randint(0,100,(min(m,n)))
       mat.setDiagonal(vals)
@@ -953,7 +955,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(1,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       x = rgen.randint(0,100,(n)).astype(float32)
@@ -992,7 +994,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(1,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       x = rgen.randint(0,100,(n)).astype(float32)
@@ -1016,7 +1018,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(1,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       x = rgen.randint(0,100,(m)).astype(float32)
@@ -1052,7 +1054,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(1,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       x = rgen.randint(0,100,(n)).astype(float32)
@@ -1084,7 +1086,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(1,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       x = rgen.randint(0,100,(m)).astype(float32)
@@ -1114,11 +1116,11 @@ class SparseMatrixTest(unittest.TestCase):
       m2 = rgen.randint(2,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m1,n))
-      a[numpy.where(a < 60)] = 0
+      a[cupy.where(a < 60)] = 0
       a[rgen.randint(0,m1)] = 0
       a[:,rgen.randint(0,n)] = 0
       b = rgen.randint(0,100,(n,m2))
-      b[numpy.where(b < 60)] = 0
+      b[cupy.where(b < 60)] = 0
       b[rgen.randint(0,n)] = 0
       b[:,rgen.randint(0,m2)] = 0
       cr = dot(a,b)
@@ -1138,11 +1140,11 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       b = rgen.randint(0,100,(m,n))
-      b[numpy.where(b < 75)] = 0
+      b[cupy.where(b < 75)] = 0
       b[rgen.randint(0,m)] = 0
       b[:,rgen.randint(0,n)] = 0
       cr = a * b
@@ -1160,13 +1162,13 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       x = rgen.randint(0,100,(m))
       y = rgen.randint(0,100,(n))
       b = a.copy()
-      b += numpy.outer(x,y)
+      b += cupy.outer(x,y)
       a = SM32(a)
       x = [int(o) for o in x]
       y = [int(o) for o in y]
@@ -1183,7 +1185,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 75)] = 0
+      a[cupy.where(a < 75)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       x = list(set(rgen.randint(0,m,(4))))
@@ -1212,7 +1214,7 @@ class SparseMatrixTest(unittest.TestCase):
       y = rgen.randint(0,100,(n))
       x[where(x < 50)] = 0
       y[where(y < 50)] = 0
-      r = numpy.outer(x,y)
+      r = cupy.outer(x,y)
       a = SM32()
       x = [int(o) for o in x]
       y = [int(o) for o in y]
@@ -1234,7 +1236,7 @@ class SparseMatrixTest(unittest.TestCase):
         x = [int(o) for o in x]
         y = [int(o) for o in y]
         a.setFromOuter(x,y, True)
-        r = numpy.outer(x,y)
+        r = cupy.outer(x,y)
         if (a.toDense() != r).any():
           error('setFromOuter 2')
 
@@ -1251,7 +1253,7 @@ class SparseMatrixTest(unittest.TestCase):
       x[where(x < 50)] = 0
       y[where(y < 50)] = 0
       b = rgen.randint(0,100,(m,n))
-      r = numpy.outer(x,y) * b
+      r = cupy.outer(x,y) * b
       a = SM32()
       x = [int(o) for o in x]
       y = [int(o) for o in y]
@@ -1268,11 +1270,11 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 60)] = 0
+      a[cupy.where(a < 60)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       b = rgen.randint(0,100,(m,n))
-      b[numpy.where(b < 60)] = 0
+      b[cupy.where(b < 60)] = 0
       b[rgen.randint(0,m)] = 0
       b[:,rgen.randint(0,n)] = 0
       cr = a + b
@@ -1291,7 +1293,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 60)] = 0
+      a[cupy.where(a < 60)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
 
@@ -1324,7 +1326,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 60)] = 0
+      a[cupy.where(a < 60)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
 
@@ -1357,7 +1359,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 60)] = 0
+      a[cupy.where(a < 60)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
 
@@ -1390,7 +1392,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 60)] = 0
+      a[cupy.where(a < 60)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       box_row_start = rgen.randint(0,m)
@@ -1412,7 +1414,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,10)
       n = rgen.randint(1,10)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 60)] = 0
+      a[cupy.where(a < 60)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       box_row_start = rgen.randint(0,m)
@@ -1435,7 +1437,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,20)
       n = rgen.randint(2,20)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 10)] = 0
+      a[cupy.where(a < 10)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       sm = SM32(a)
@@ -1459,7 +1461,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(4,20)
       n = rgen.randint(4,20)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 10)] = 0
+      a[cupy.where(a < 10)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       box_row_start = rgen.randint(1,m/2)
@@ -1487,7 +1489,7 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(4,20)
       n = rgen.randint(4,20)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 10)] = 0
+      a[cupy.where(a < 10)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       box_row_start = rgen.randint(1,m/2)
@@ -1554,7 +1556,7 @@ class SparseMatrixTest(unittest.TestCase):
       y = smoothVecMaxProd(A, k, x)
 
       d = (A.toDense() + k) * x
-      y0 = numpy.max(d, axis=1)
+      y0 = cupy.max(d, axis=1)
 
       if (abs(y - y0) > 1e-3).any():
         error('smoothVecMaxProd')
@@ -1580,7 +1582,7 @@ class SparseMatrixTest(unittest.TestCase):
       y = smoothVecArgMaxProd(A, k, x)
 
       d = (A.toDense() + k) * x
-      y0 = numpy.argmax(d, axis=1)
+      y0 = cupy.argmax(d, axis=1)
 
       if (y != y0).any():
         print k
@@ -1601,7 +1603,7 @@ class SparseMatrixTest(unittest.TestCase):
     m = rgen.randint(5, size=(r, c))
     sm = SM32(m)
     s = rgen.randint(-r, r+1)
-    ms = numpy.zeros(m.shape)
+    ms = cupy.zeros(m.shape)
     sb = max(0, -s)
     rs = r - abs(s)
     db = max(0, s)
@@ -1626,11 +1628,11 @@ class SparseMatrixTest(unittest.TestCase):
     if s > 0:
      permutation = rotated + shifted
      zero = range(0, s)
-     m2 = numpy.hstack((numpy.zeros((r, s)), m[..., 0:(c-s)]))
+     m2 = cupy.hstack((cupy.zeros((r, s)), m[..., 0:(c-s)]))
     else:
      permutation = shifted + rotated
      zero = range(c+s, c)
-     m2 = numpy.hstack((m[..., (-s):], numpy.zeros((r, -s))))
+     m2 = cupy.hstack((m[..., (-s):], cupy.zeros((r, -s))))
 
     start = time.time()
     sm2.permuteCols(permutation)
@@ -1658,14 +1660,14 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,20)
       n = rgen.randint(2,20)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 10)] = 0
+      a[cupy.where(a < 10)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       sm = SM32(a)
 
       x = sm.logRowSums()
-      a[numpy.where(a == 0)] = 1
-      a = numpy.log(a)
+      a[cupy.where(a == 0)] = 1
+      a = cupy.log(a)
       y = a.sum(axis = 1)
       if (x != y).any():
         error('logRowSums')
@@ -1681,14 +1683,14 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,20)
       n = rgen.randint(2,20)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 10)] = 0
+      a[cupy.where(a < 10)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       sm = SM32(a)
 
       x = sm.logColSums()
-      a[numpy.where(a == 0)] = 1
-      a = numpy.log(a)
+      a[cupy.where(a == 0)] = 1
+      a = cupy.log(a)
       y = a.sum(axis = 0)
       if (x != y).any():
         error('logColSums')
@@ -1703,12 +1705,12 @@ class SparseMatrixTest(unittest.TestCase):
       m = rgen.randint(2,20)
       n = rgen.randint(2,20)
       a = rgen.randint(0,100,(m,n))
-      a[numpy.where(a < 10)] = 0
+      a[cupy.where(a < 10)] = 0
       a[rgen.randint(0,m)] = 0
       a[:,rgen.randint(0,n)] = 0
       sm = SM32(a)
 
-      indicator = numpy.random.randint(0,1,(m)).astype('uint32')
+      indicator = cupy.random.randint(0,1,(m)).astype('uint32')
       x = sm.addRows(indicator)
 
       y = zeros((n))
@@ -2232,7 +2234,7 @@ class SparseMatrixTest(unittest.TestCase):
     B = SM32(b)
     SM_logDiffNoAlloc(A,B)
     a = A.toDense()
-    if numpy.isinf(a):
+    if cupy.isinf(a):
       error('logDiffNoAlloc 4a');
     if a[0,0] > log(getGlobalEpsilon()):
       error('logDiffNoAlloc 4b');
@@ -2559,7 +2561,7 @@ class SparseMatrixTest(unittest.TestCase):
         if (rgen.randint(0,100)) > 50:
           x[k] = 0
 
-      ans = (x.sum(axis=1) > 0).astype(numpy.int)
+      ans = (x.sum(axis=1) > 0).astype(cupy.int)
 
       x.shape = (-1)
       ind = nonZeroRowsIndicator_01(m,n,x)
@@ -2583,7 +2585,7 @@ class SparseMatrixTest(unittest.TestCase):
         if (rgen.randint(0,100)) > 50:
           x[k] = 0
 
-      ans = (x.sum(axis=0) > 0).astype(numpy.int)
+      ans = (x.sum(axis=0) > 0).astype(cupy.int)
 
       x.shape = (-1)
       ind = nonZeroColsIndicator_01(m,n,x)
@@ -2646,10 +2648,10 @@ class SparseMatrixTest(unittest.TestCase):
 
     # To make sure SSE works (it requires 16 bytes alignment)
     # Test with variable length vectors whose size is not a multiple of 16
-    # Test with slices in numpy arrays, which will lead to the vector
+    # Test with slices in cupy arrays, which will lead to the vector
     # not starting on a 16 bytes boundary
 
-    type32 = GetNumpyDataType('NTA_Real32')
+    type32 = GetcupyDataType('NTA_Real32')
 
     for i in range(10):
 
@@ -2661,10 +2663,10 @@ class SparseMatrixTest(unittest.TestCase):
       # Half the time test with slice (messes with the alignment)
       # Half the time test the whole vector (start is aligned)
       if rgen.randint(0,100) > 50:
-        ans = numpy.logical_and(x[1:],y[1:])
+        ans = cupy.logical_and(x[1:],y[1:])
         z = logicalAnd(x[1:],y[1:])
       else:
-        ans = numpy.logical_and(x,y)
+        ans = cupy.logical_and(x,y)
         z = logicalAnd(x,y)
 
       if (z != ans).any():
@@ -2677,7 +2679,7 @@ class SparseMatrixTest(unittest.TestCase):
 
     # To make sure SSE works (it requires 16 bytes alignment)
     # Test with variable length vectors whose size is not a multiple of 16
-    # Test with slices in numpy arrays, which will lead to the vector
+    # Test with slices in cupy arrays, which will lead to the vector
     # not starting on a 16 bytes boundary
 
     type32 = GetNumpyDataType('NTA_Real32')
@@ -2692,14 +2694,14 @@ class SparseMatrixTest(unittest.TestCase):
       # Half the time test with slice (messes with the alignment)
       # Half the time test the whole vector (start is aligned)
       if rgen.randint(0,100) > 50:
-        ans = numpy.logical_and(x[1:],y[1:])
+        ans = cupy.logical_and(x[1:],y[1:])
         logicalAnd2(x[1:],y[1:])
 
         if (y[1:] != ans).any():
           error('logicalAnd2, slice')
 
       else:
-        ans = numpy.logical_and(x,y)
+        ans = cupy.logical_and(x,y)
         logicalAnd2(x,y)
 
         if (y != ans).any():
@@ -2712,7 +2714,7 @@ class SparseMatrixTest(unittest.TestCase):
 
     # To make sure SSE works (it requires 16 bytes alignment)
     # Test with variable length vectors whose size is not a multiple of 16
-    # Test with slices in numpy arrays, which will lead to the vector
+    # Test with slices in cupy arrays, which will lead to the vector
     # not starting on a 16 bytes boundary
 
     type32 = GetNumpyDataType('NTA_Real32')
@@ -2848,7 +2850,7 @@ class SparseMatrixTest(unittest.TestCase):
       direction = 1
 
       t0 = time.time()
-      ans = numpy.argsort(x)[:k]
+      ans = cupy.argsort(x)[:k]
       t1 += time.time() - t0
 
       t0 = time.time()
@@ -2960,7 +2962,7 @@ class SparseMatrixTest(unittest.TestCase):
       s2 = set(b)
 
       ss2 = Set(m, b)
-      r_cpp = numpy.zeros(m,dtype='uint32')
+      r_cpp = cupy.zeros(m,dtype='uint32')
 
       if ss2.n_elements() != n2 or ss2.max_index() != m:
           error('Set construction')

@@ -25,6 +25,7 @@
 import unittest
 
 from numpy import array
+from cupy import array
 import pickle
 
 from nupic.algorithms import anomaly

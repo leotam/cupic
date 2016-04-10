@@ -26,6 +26,8 @@ import cPickle as pickle
 import os
 
 import numpy
+import cupy
+
 import unittest2 as unittest
 
 from nupic.bindings.math import Random
@@ -150,14 +152,14 @@ class Cells4Test(unittest.TestCase):
     pamLength = 2
     maxAge = 3
 
-    activeStateT = numpy.zeros((nCols, nCellsPerCol), dtype="uint32")
-    activeStateT1 = numpy.zeros((nCols, nCellsPerCol), dtype="uint32")
-    predictedStateT = numpy.zeros((nCols, nCellsPerCol), dtype="uint32")
-    predictedStateT1 = numpy.zeros((nCols, nCellsPerCol), dtype="uint32")
-    colConfidenceT = numpy.zeros(nCols, dtype="float32")
-    colConfidenceT1 = numpy.zeros(nCols, dtype="float32")
-    confidenceT = numpy.zeros((nCols, nCellsPerCol), dtype="float32")
-    confidenceT1 = numpy.zeros((nCols, nCellsPerCol), dtype="float32")
+    activeStateT = cupy.zeros((nCols, nCellsPerCol), dtype="uint32")
+    activeStateT1 = cupy.zeros((nCols, nCellsPerCol), dtype="uint32")
+    predictedStateT = cupy.zeros((nCols, nCellsPerCol), dtype="uint32")
+    predictedStateT1 = cupy.zeros((nCols, nCellsPerCol), dtype="uint32")
+    colConfidenceT = cupy.zeros(nCols, dtype="float32")
+    colConfidenceT1 = cupy.zeros(nCols, dtype="float32")
+    confidenceT = cupy.zeros((nCols, nCellsPerCol), dtype="float32")
+    confidenceT1 = cupy.zeros((nCols, nCellsPerCol), dtype="float32")
 
     cells = Cells4(nCols,
                    nCellsPerCol,
@@ -191,7 +193,7 @@ class Cells4Test(unittest.TestCase):
                             [((i + 1) % nCols, (j + 1) % nCellsPerCol)])
 
     for i in xrange(10):
-      x = numpy.zeros(nCols, dtype="uint32")
+      x = cupy.zeros(nCols, dtype="uint32")
       _RGEN.initializeUInt32Array(x, 2)
       print "Input:", x
       cells.compute(x, True, True)
@@ -201,7 +203,7 @@ class Cells4Test(unittest.TestCase):
     self._testPersistence(cells)
 
     for i in xrange(100):
-      x = numpy.zeros(nCols, dtype="uint32")
+      x = cupy.zeros(nCols, dtype="uint32")
       _RGEN.initializeUInt32Array(x, 2)
       cells.compute(x, True, False)
 

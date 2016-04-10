@@ -25,6 +25,7 @@
 import unittest2 as unittest
 
 import numpy
+import cupy
 
 from nupic.bindings.math import nearlyZeroRange
 
@@ -34,7 +35,7 @@ class TestArrayAlgos(unittest.TestCase):
 
 
   def setUp(self):
-    self.x = numpy.zeros((10))
+    self.x = cupy.zeros((10))
 
 
   def testNearlyZeroRange1(self):

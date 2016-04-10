@@ -27,10 +27,10 @@ import os
 
 import numpy
 import unittest2 as unittest
-
+import cupy
 from nupic.bindings.math import SM32, SM_01_32_32
 
-_RGEN = numpy.random.RandomState(37)
+_RGEN = cupy.random.RandomState(37)
 
 
 
@@ -63,10 +63,10 @@ class UnitTests(unittest.TestCase):
     n = _RGEN.randint(5,10)
     a = self.Matrix.__class__(n)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     for i in range(m):
-      a.appendSparseRow(numpy.where(x[i] > 0)[0].tolist())
+      a.appendSparseRow(cupy.where(x[i] > 0)[0].tolist())
 
     b = self.Matrix.__class__(a)
     if (a.toDense() != b.toDense()).any():
@@ -74,7 +74,7 @@ class UnitTests(unittest.TestCase):
 
     c = self.Matrix.__class__(x)
     if (c.toDense() != x).any():
-      error('constructor from numpy array')
+      error('constructor from cupy array')
 
     s = c.toCSR()
     d = self.Matrix.__class__(s)
@@ -88,7 +88,7 @@ class UnitTests(unittest.TestCase):
     a = SM32(a)
     b = SM_01_32_32(a)
     a = a.toDense()
-    w = numpy.where(a > 0)
+    w = cupy.where(a > 0)
     a[w] = 1
     if (a != b.toDense()).any():
       error('construction from SM')
@@ -110,7 +110,7 @@ class UnitTests(unittest.TestCase):
       error('nCols 1')
 
     for i in range(m):
-      a.appendSparseRow(numpy.where(x[i] > 0)[0].tolist())
+      a.appendSparseRow(cupy.where(x[i] > 0)[0].tolist())
 
     if a.nRows() != m:
       error('nRows 2')
@@ -118,7 +118,7 @@ class UnitTests(unittest.TestCase):
     if a.nCols() != n:
       error('nCols 2')
 
-    if a.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if a.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('nNonZeros')
 
     for i in range(m):
@@ -132,7 +132,7 @@ class UnitTests(unittest.TestCase):
       error('nNonZerosPerCol')
 
     for i in range(m):
-      y = numpy.zeros((n))
+      y = cupy.zeros((n))
       for j in a.getRowSparse(i):
         y[j] = 1
       if (y != x[i]).any():
@@ -158,7 +158,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(1,10)
     n = _RGEN.randint(5,10)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(x)
     b = self.Matrix.__class__(1)
@@ -281,7 +281,7 @@ class UnitTests(unittest.TestCase):
     if a.nRows() != old_nrows/2 or a.nCols() != old_ncols:
       error('resize to less rows, 1')
 
-    if a.nNonZeros() != numpy.sum(x[:old_nrows/2]):
+    if a.nNonZeros() != cupy.sum(x[:old_nrows/2]):
       error('resize to less rows, 2')
 
     # 2.2 Less cols only
@@ -292,7 +292,7 @@ class UnitTests(unittest.TestCase):
     if a.nRows() != old_nrows or a.nCols() != old_ncols/2:
       error('resize to less cols, 1')
 
-    if a.nNonZeros() != numpy.sum(x[:a.nRows(),:old_ncols/2]):
+    if a.nNonZeros() != cupy.sum(x[:a.nRows(),:old_ncols/2]):
       error('resize to less cols, 2')
 
     # 2.3 Less rows and cols
@@ -310,7 +310,7 @@ class UnitTests(unittest.TestCase):
     if a.nRows() != old_nrows/2 or a.nCols() != old_ncols/2:
       error('resize to less rows and cols, 1')
 
-    if a.nNonZeros() != numpy.sum(x[:old_nrows/2,:old_ncols/2]):
+    if a.nNonZeros() != cupy.sum(x[:old_nrows/2,:old_ncols/2]):
       error('resize to less rows and cols, 2')
 
 
@@ -319,7 +319,7 @@ class UnitTests(unittest.TestCase):
     n = _RGEN.randint(5,10)
     a = self.Matrix.__class__(n)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(x)
     b = self.Matrix.__class__(x)
@@ -337,7 +337,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(1,10)
     n = _RGEN.randint(5,10)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(x)
 
@@ -358,7 +358,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(1,10)
     n = _RGEN.randint(5,10)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(x)
 
@@ -380,7 +380,7 @@ class UnitTests(unittest.TestCase):
       a[:,_RGEN.randint(0,n)] = 0
       sm = self.Matrix.__class__(a)
 
-      ans_ind = numpy.where(a > 0)
+      ans_ind = cupy.where(a > 0)
       ans_val = a[ans_ind]
       ans = [(i,j,v) for i,j,v in zip(ans_ind[0], ans_ind[1], ans_val)]
 
@@ -411,7 +411,7 @@ class UnitTests(unittest.TestCase):
       a[m-1] = 0
       a[:,n-1] = 0
 
-      nz = numpy.where(a > 0)
+      nz = cupy.where(a > 0)
       sm = self.Matrix.__class__(1)
 
       # Assumes lexicographic order of the indices by default
@@ -443,7 +443,7 @@ class UnitTests(unittest.TestCase):
 
       m = _RGEN.randint(2,10)
       n = _RGEN.randint(2,10)
-      a = _RGEN.randint(0,2,(m,n)).astype(numpy.float32)
+      a = _RGEN.randint(0,2,(m,n)).astype(cupy.float32)
       a[_RGEN.randint(0,m)] = 0
       a[:,_RGEN.randint(0,n)] = 0
       a[0,0] = 1
@@ -463,7 +463,7 @@ class UnitTests(unittest.TestCase):
 
       m = _RGEN.randint(10,20)
       n = _RGEN.randint(10,20)
-      a = _RGEN.randint(0,2,(m,n)).astype(numpy.float32)
+      a = _RGEN.randint(0,2,(m,n)).astype(cupy.float32)
       a[_RGEN.randint(0,m)] = 0
       a[:,_RGEN.randint(0,n)] = 0
       a[0,0] = 1
@@ -472,13 +472,13 @@ class UnitTests(unittest.TestCase):
 
       sm = self.Matrix.__class__(a)
 
-      b = _RGEN.randint(0,2,(m/4,n/4)).astype(numpy.float32)
+      b = _RGEN.randint(0,2,(m/4,n/4)).astype(cupy.float32)
       slice = self.Matrix.__class__(b)
       x,y = _RGEN.randint(0,m/2), _RGEN.randint(0,n/2)
 
       sm.setSlice(x,y,slice)
 
-      ans = numpy.array(a)
+      ans = cupy.array(a)
       for i in range(b.shape[0]):
         for j in range(b.shape[1]):
           ans[x+i,y+j] = slice.get(i,j)
@@ -486,27 +486,27 @@ class UnitTests(unittest.TestCase):
       if (sm.toDense() != ans).any():
         error('setSlice')
 
-    # With a numpy array
+    # With a cupy array
     for i in range(10):
 
       m = _RGEN.randint(10,20)
       n = _RGEN.randint(10,20)
-      a = _RGEN.randint(0,2,(m,n)).astype(numpy.float32)
+      a = _RGEN.randint(0,2,(m,n)).astype(cupy.float32)
       a[_RGEN.randint(0,m)] = 0
       a[:,_RGEN.randint(0,n)] = 0
-      a[numpy.where(a < 25)] = 0
+      a[cupy.where(a < 25)] = 0
       a[0,0] = 1
       a[m/2] = 0
       a[:,n/2] = 0
 
       sm = self.Matrix.__class__(a)
 
-      slice = _RGEN.randint(0,2,(m/4,n/4)).astype(numpy.float32)
+      slice = _RGEN.randint(0,2,(m/4,n/4)).astype(cupy.float32)
       x,y = _RGEN.randint(0,m/2), _RGEN.randint(0,n/2)
 
       sm.setSlice(x,y,slice)
 
-      ans = numpy.array(a)
+      ans = cupy.array(a)
       for i in range(slice.shape[0]):
         for j in range(slice.shape[1]):
           ans[x+i,y+j] = slice[i,j]
@@ -519,7 +519,7 @@ class UnitTests(unittest.TestCase):
     for i in range(10):
       m = _RGEN.randint(2,10)
       n = _RGEN.randint(2,10)
-      a = _RGEN.randint(0,2,(m,n)).astype(numpy.float32)
+      a = _RGEN.randint(0,2,(m,n)).astype(cupy.float32)
       a[_RGEN.randint(0,m)] = 0
       a[:,_RGEN.randint(0,n)] = 0
       a[0,0] = 1
@@ -529,11 +529,11 @@ class UnitTests(unittest.TestCase):
       sm = self.Matrix.__class__(a)
 
       nnzpb = sm.nNonZerosPerBox([m/2, m], [n/2, n])
-      ans = numpy.zeros((2,2))
-      ans[0,0] = numpy.sum(a[:m/2,:n/2])
-      ans[0,1] = numpy.sum(a[:m/2,n/2:])
-      ans[1,0] = numpy.sum(a[m/2:,:n/2])
-      ans[1,1] = numpy.sum(a[m/2:,n/2:])
+      ans = cupy.zeros((2,2))
+      ans[0,0] = cupy.sum(a[:m/2,:n/2])
+      ans[0,1] = cupy.sum(a[:m/2,n/2:])
+      ans[1,0] = cupy.sum(a[m/2:,:n/2])
+      ans[1,1] = cupy.sum(a[m/2:,n/2:])
       if (nnzpb.toDense() != ans).any():
         error('nNonZerosPerBox')
 
@@ -543,10 +543,10 @@ class UnitTests(unittest.TestCase):
     n = _RGEN.randint(5,10)
     a = self.Matrix.__class__(n)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     for i in range(m):
-      a.appendSparseRow(numpy.where(x[i] > 0)[0].tolist())
+      a.appendSparseRow(cupy.where(x[i] > 0)[0].tolist())
 
     if (a.toDense() != x).any():
       error('appendSparseRow')
@@ -554,10 +554,10 @@ class UnitTests(unittest.TestCase):
     if a.nRows() != m:
       error('appendSparseRow nRows')
 
-    if (numpy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
+    if (cupy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
       error('appendSparseRow nNonZerosPerRow')
 
-    if a.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if a.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('appendSparseRow nNonZeros')
 
 
@@ -566,7 +566,7 @@ class UnitTests(unittest.TestCase):
     n = _RGEN.randint(5,10)
     a = self.Matrix.__class__(n)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     for i in range(m):
       a.appendDenseRow(x[i])
@@ -577,10 +577,10 @@ class UnitTests(unittest.TestCase):
     if a.nRows() != m:
       error('appendDenseRow nRows')
 
-    if (numpy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
+    if (cupy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
       error('appendDenseRow nNonZerosPerRow')
 
-    if a.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if a.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('appendDenseRow nNonZeros')
 
 
@@ -589,22 +589,22 @@ class UnitTests(unittest.TestCase):
     n = _RGEN.randint(5,10)
     a = self.Matrix.__class__(n)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     for i in range(m):
-      a.appendSparseRow(numpy.where(x[i] > 0)[0].tolist())
+      a.appendSparseRow(cupy.where(x[i] > 0)[0].tolist())
 
     for i in range(m):
       x[i] = _RGEN.randint(0,2,(n))
-      a.replaceSparseRow(i, numpy.where(x[i] > 0)[0].tolist())
+      a.replaceSparseRow(i, cupy.where(x[i] > 0)[0].tolist())
 
       if (a.toDense() != x).any():
         error('replaceSparseRow')
 
-      if (numpy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
+      if (cupy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
         error('replaceSparseRow nNonZerosPerRow')
 
-    if a.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if a.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('replaceSparseRow nNonZeros')
 
     if a.nRows() != m:
@@ -616,13 +616,13 @@ class UnitTests(unittest.TestCase):
     n = _RGEN.randint(5,10)
     a = self.Matrix.__class__(n)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     for i in range(m):
-      a.appendSparseRow(numpy.where(x[i] > 0)[0].tolist())
+      a.appendSparseRow(cupy.where(x[i] > 0)[0].tolist())
 
     for i in range(m):
-      w = a.findRowSparse(numpy.where(x[i] > 0)[0].tolist())
+      w = a.findRowSparse(cupy.where(x[i] > 0)[0].tolist())
       if (x[w] != x[i]).any():
         error('findRowSparse')
 
@@ -631,7 +631,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(1,10)
     n = _RGEN.randint(5,10)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
     a = self.Matrix.__class__(x)
 
     for i in range(m):
@@ -644,7 +644,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(1,10)
     n = _RGEN.randint(5,10)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(n)
     a.fromDense(x)
@@ -727,7 +727,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(1,10)
     n = _RGEN.randint(5,10)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(n)
     a.fromDense(x)
@@ -775,25 +775,25 @@ class UnitTests(unittest.TestCase):
 
       a.transpose()
 
-      if (a.toDense() != numpy.transpose(x)).any():
-        error('numpy.transpose')
+      if (a.toDense() != cupy.transpose(x)).any():
+        error('cupy.transpose')
 
-      if (numpy.array(a.nNonZerosPerRow()) != x.sum(axis=0)).any():
-        error('numpy.transpose nNonZerosPerRow')
+      if (cupy.array(a.nNonZerosPerRow()) != x.sum(axis=0)).any():
+        error('cupy.transpose nNonZerosPerRow')
 
-      if a.nNonZeros() != len(numpy.where(x > 0)[0]):
-        error('numpy.transpose nNonZeros')
+      if a.nNonZeros() != len(cupy.where(x > 0)[0]):
+        error('cupy.transpose nNonZeros')
 
       a.transpose()
 
       if (a.toDense() != x).any():
-        error('numpy.transpose 2')
+        error('cupy.transpose 2')
 
-      if (numpy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
-        error('numpy.transpose nNonZerosPerRow 2')
+      if (cupy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
+        error('cupy.transpose nNonZerosPerRow 2')
 
-      if a.nNonZeros() != len(numpy.where(x > 0)[0]):
-        error('numpy.transpose nNonZeros 2')
+      if a.nNonZeros() != len(cupy.where(x > 0)[0]):
+        error('cupy.transpose nNonZeros 2')
 
   def testCSR(self):
     m = _RGEN.randint(10,20)
@@ -810,10 +810,10 @@ class UnitTests(unittest.TestCase):
     if (a.toDense() != b.toDense()).any():
       error('toCSR/fromCSR')
 
-    if (numpy.array(a.nNonZerosPerRow()) != numpy.array(b.nNonZerosPerRow())).any():
+    if (cupy.array(a.nNonZerosPerRow()) != cupy.array(b.nNonZerosPerRow())).any():
       error('toCSR/fromCSR nNonZerosPerRow')
 
-    if b.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if b.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('toCSR/fromCSR nNonZeros')
 
 
@@ -898,10 +898,10 @@ class UnitTests(unittest.TestCase):
     a = self.Matrix.__class__(1)
 
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     x = x.reshape((m*n))
-    indices = numpy.where(x > 0)[0].tolist()
+    indices = cupy.where(x > 0)[0].tolist()
     a.fromSparseVector(m, n, indices)
 
     x = x.reshape((m,n))
@@ -909,19 +909,19 @@ class UnitTests(unittest.TestCase):
     if (a.toDense() != x).any():
       error('fromSparseVector')
 
-    if (numpy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
+    if (cupy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
       error('fromSparseVector nNonZerosPerRow')
 
-    if a.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if a.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('fromSparseVector nNonZeros')
 
     x = x.reshape(m*n)
     y = a.toSparseVector()
 
-    if (y != numpy.where(x > 0)[0].tolist()).any():
+    if (y != cupy.where(x > 0)[0].tolist()).any():
       error('toSparseVector')
 
-    if a.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if a.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('toSparseVector nNonZeros 2')
 
     # Need to make the same matrix can go through
@@ -929,7 +929,7 @@ class UnitTests(unittest.TestCase):
     x = _RGEN.randint(0,2,(n,m))
 
     x = x.reshape((m*n))
-    indices = numpy.where(x > 0)[0].tolist()
+    indices = cupy.where(x > 0)[0].tolist()
     a.fromSparseVector(n, m, indices)
 
     x = x.reshape((n, m))
@@ -937,19 +937,19 @@ class UnitTests(unittest.TestCase):
     if (a.toDense() != x).any():
       error('fromSparseVector 2')
 
-    if (numpy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
+    if (cupy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
       error('fromSparseVector nNonZerosPerRow 2')
 
-    if a.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if a.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('fromSparseVector nNonZeros 2')
 
     x = x.reshape(m*n)
     y = a.toSparseVector()
 
-    if (y != numpy.where(x > 0)[0].tolist()).any():
+    if (y != cupy.where(x > 0)[0].tolist()).any():
       error('toSparseVector 2')
 
-    if a.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if a.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('toSparseVector nNonZeros 2')
 
 
@@ -957,7 +957,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(1,10)
     n = _RGEN.randint(5,10)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(1)
     a.fromDense(x)
@@ -965,10 +965,10 @@ class UnitTests(unittest.TestCase):
     if (a.toDense() != x).any():
       error('fromDense')
 
-    if (numpy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
+    if (cupy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
       error('fromDense nNonZerosPerRow')
 
-    if a.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if a.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('fromDense nNonZeros')
 
     # Need to make sure the same matrix can go
@@ -979,10 +979,10 @@ class UnitTests(unittest.TestCase):
     if (a.toDense() != x).any():
       error('fromDense 2')
 
-    if (numpy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
+    if (cupy.array(a.nNonZerosPerRow()) != x.sum(axis=1)).any():
       error('fromDense nNonZerosPerRow 2')
 
-    if a.nNonZeros() != len(numpy.where(x > 0)[0]):
+    if a.nNonZeros() != len(cupy.where(x > 0)[0]):
       error('fromDense nNonZeros 2')
 
 
@@ -990,13 +990,13 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(1,10)
     n = _RGEN.randint(5,10)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
-    b = numpy.zeros((m,n))
+    x[m/2] = cupy.zeros((n))
+    b = cupy.zeros((m,n))
 
     a = self.Matrix.__class__(n)
 
     for i in range(m):
-      a.appendDenseRow(numpy.zeros((n)))
+      a.appendDenseRow(cupy.zeros((n)))
       a.rowFromDense(i, x[i])
 
     if (a.toDense() != x).any():
@@ -1014,10 +1014,10 @@ class UnitTests(unittest.TestCase):
     n = _RGEN.randint(5,10)
     a = self.Matrix.__class__(n)
     x = _RGEN.randint(0,2,(m,n))
-    x[m/2] = numpy.zeros((n))
+    x[m/2] = cupy.zeros((n))
 
     for i in range(m):
-      a.appendSparseRow(numpy.where(x[i] > 0)[0].tolist())
+      a.appendSparseRow(cupy.where(x[i] > 0)[0].tolist())
 
     a.logicalNot()
     y = 1 - x
@@ -1165,7 +1165,7 @@ class UnitTests(unittest.TestCase):
 
         coinc = _RGEN.randint(0,2,(n))
         overlaps = a.overlap(coinc)
-        longSums = numpy.maximum(a.rowSums(), coinc.sum())
+        longSums = cupy.maximum(a.rowSums(), coinc.sum())
         maxAllowedOverlaps = (1.0 - maxDistance) * longSums
         py_accepted = True
         if (overlaps > maxAllowedOverlaps).any():
@@ -1176,11 +1176,11 @@ class UnitTests(unittest.TestCase):
 
 
   def testSubtract(self):
-    a = numpy.array([[0,1,0],
+    a = cupy.array([[0,1,0],
                      [1,0,1],
                      [0,1,0]])
 
-    b = numpy.array([[1,1,1],
+    b = cupy.array([[1,1,1],
                      [1,0,1],
                      [1,1,1]])
 
@@ -1424,19 +1424,19 @@ class UnitTests(unittest.TestCase):
       m = _RGEN.randint(1,10)
       n = _RGEN.randint(5,10)
       mat = _RGEN.randint(0,2,(m,n))
-      mat[m/2] = numpy.zeros((n))
+      mat[m/2] = cupy.zeros((n))
 
       a = self.Matrix.__class__(1)
       a.fromDense(mat)
 
-      x = _RGEN.lognormal(size=n).astype(numpy.float32)
+      x = _RGEN.lognormal(size=n).astype(cupy.float32)
       y = a.rightVecSumAtNZ(x)
-      answer = numpy.dot(mat, x)
+      answer = cupy.dot(mat, x)
 
       if (max(y - answer) > 1e-5).any():
         error('rightVecSumAtNZ')
 
-      y2 = numpy.zeros((m)).astype(numpy.float32)
+      y2 = cupy.zeros((m)).astype(cupy.float32)
       a.rightVecSumAtNZ_fast(x, y2)
 
       if (y != y2).any():
@@ -1449,15 +1449,15 @@ class UnitTests(unittest.TestCase):
       m = _RGEN.randint(1,10)
       n = _RGEN.randint(5,10)
       mat = _RGEN.randint(0,2,(m,n))
-      mat[m/2] = numpy.zeros((n))
+      mat[m/2] = cupy.zeros((n))
 
       a = self.Matrix.__class__(1)
       a.fromDense(mat)
 
-      x = _RGEN.lognormal(size=n).astype(numpy.float32)
+      x = _RGEN.lognormal(size=n).astype(cupy.float32)
       y = a.rightVecArgMaxAtNZ(x)
 
-      answer = numpy.zeros(m)
+      answer = cupy.zeros(m)
       for i in xrange(m):
         a = 0
         for j in xrange(n):
@@ -1480,19 +1480,19 @@ class UnitTests(unittest.TestCase):
       m = _RGEN.randint(1,10)
       n = _RGEN.randint(5,10)
       mat = _RGEN.randint(0,2,(m,n))
-      mat[m/2] = numpy.zeros((n))
+      mat[m/2] = cupy.zeros((n))
 
       a = self.Matrix.__class__(1)
       a.fromDense(mat)
 
-      x = _RGEN.lognormal(size=m).astype(numpy.float32)
+      x = _RGEN.lognormal(size=m).astype(cupy.float32)
       y = a.leftVecSumAtNZ(x)
-      answer = numpy.dot(x, mat)
+      answer = cupy.dot(x, mat)
 
       if (max(y - answer) > 1e-5).any():
         error('leftVecSumAtNZ')
 
-      y2 = numpy.zeros((n)).astype(numpy.float32)
+      y2 = cupy.zeros((n)).astype(cupy.float32)
       a.leftVecSumAtNZ_fast(x, y2)
 
       if (y != y2).any():
@@ -1503,7 +1503,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(1,100)
     n = _RGEN.randint(5,100)
     mat = _RGEN.randint(0,2,(m,n))
-    mat[m/2] = numpy.zeros((n))
+    mat[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(1)
     a.fromDense(mat)
@@ -1518,7 +1518,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(1,100)
     n = _RGEN.randint(5,100)
     mat = _RGEN.randint(0,2,(m,n))
-    mat[m/2] = numpy.zeros((n))
+    mat[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(1)
     a.fromDense(mat)
@@ -1536,7 +1536,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(5,10)
     n = _RGEN.randint(5,10)
     mat = _RGEN.randint(0,2,(m,n))
-    mat[m/2] = numpy.zeros((n))
+    mat[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(mat)
 
@@ -1569,7 +1569,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(5,10)
     n = _RGEN.randint(5,10)
     mat = _RGEN.randint(0,2,(m,n))
-    mat[m/2] = numpy.zeros((n))
+    mat[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(mat)
 
@@ -1602,7 +1602,7 @@ class UnitTests(unittest.TestCase):
     m = _RGEN.randint(5,10)
     n = _RGEN.randint(5,10)
     mat = _RGEN.randint(0,2,(m,n))
-    mat[m/2] = numpy.zeros((n))
+    mat[m/2] = cupy.zeros((n))
 
     a = self.Matrix.__class__(mat)
 
@@ -1611,7 +1611,7 @@ class UnitTests(unittest.TestCase):
       x = _RGEN.lognormal(1,2,(n))
       y = a.vecMaxProd(x)
 
-      truth = numpy.zeros((m))
+      truth = cupy.zeros((m))
       for j in range(m):
         max_v = 0
         for k in range(n):
@@ -1629,7 +1629,7 @@ class UnitTests(unittest.TestCase):
       m = self.Matrix.__class__(a)
       b = _RGEN.randint(0,10,(11,12))
       c = m.leftDenseMatSumAtNZ(b)
-      d = numpy.dot(b,a)
+      d = cupy.dot(b,a)
       if (c != d).any():
         print m
         print a
@@ -1642,7 +1642,7 @@ class UnitTests(unittest.TestCase):
     for i in range(10):
       a = _RGEN.randint(0,2,(6,4))
       b = _RGEN.randint(0,10,(5,6))
-      c = numpy.zeros((b.shape[0],a.shape[1])).astype(numpy.int32)
+      c = cupy.zeros((b.shape[0],a.shape[1])).astype(cupy.int32)
 
       for rowIdx in range(b.shape[0]):
         for colIdx in range(a.shape[1]):
@@ -1650,7 +1650,7 @@ class UnitTests(unittest.TestCase):
           if len(elements) > 0:
             c[rowIdx,colIdx] = elements.max()
 
-      d = self.Matrix.__class__(a).leftDenseMatMaxAtNZ(b).astype(numpy.int32)
+      d = self.Matrix.__class__(a).leftDenseMatMaxAtNZ(b).astype(cupy.int32)
       if (c != d).any():
         error('leftDenseMatMaxAtNZ')
 
@@ -1660,7 +1660,7 @@ class UnitTests(unittest.TestCase):
       m = _RGEN.randint(10, 20)
       n = _RGEN.randint(10, 20)
       a = _RGEN.randint(0,100,(m,n))
-      a[numpy.where(a < 80)] = 0
+      a[cupy.where(a < 80)] = 0
 
       if _RGEN.randint(0,100) > 50:
         a[_RGEN.randint(0,m)] = 0
@@ -1691,7 +1691,7 @@ class UnitTests(unittest.TestCase):
       m = _RGEN.randint(10, 20)
       n = _RGEN.randint(10, 20)
       a = _RGEN.randint(0,100,(m,n))
-      a[numpy.where(a < 80)] = 0
+      a[cupy.where(a < 80)] = 0
 
       if _RGEN.randint(0,100) > 50:
         a[_RGEN.randint(0,m)] = 0
@@ -1750,7 +1750,7 @@ class UnitTests(unittest.TestCase):
     mat = _RGEN.randint(0,100,(20000,n))
     x = []
     for row in mat:
-      x += [numpy.where(row > 90)[0]]
+      x += [cupy.where(row > 90)[0]]
 
     print 'Evaluating'
     for i in range(len(x)):

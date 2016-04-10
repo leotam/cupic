@@ -70,7 +70,7 @@ class DateEncoderTest(unittest.TestCase):
     # should be 30 bits total (30 * 48 minutes = 24 hours)
     timeOfDayExpected = (
       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0])
-    self._expected = numpy.array(seasonExpected +
+    self._expected = cupy.array(seasonExpected +
                                  dayOfWeekExpected +
                                  weekendExpected +
                                  timeOfDayExpected, dtype=defaultDtype)
@@ -118,8 +118,8 @@ class DateEncoderTest(unittest.TestCase):
   def testTopDownCompute(self):
     """Check topDownCompute"""
     topDown = self._e.topDownCompute(self._bits)
-    topDownValues = numpy.array([elem.value for elem in topDown])
-    errs = topDownValues - numpy.array([320.25, 3.5, .167, 14.8])
+    topDownValues = cupy.array([elem.value for elem in topDown])
+    errs = topDownValues - cupy.array([320.25, 3.5, .167, 14.8])
     self.assertAlmostEqual(errs.max(), 0, 4)
 
 
@@ -127,14 +127,14 @@ class DateEncoderTest(unittest.TestCase):
     """Check bucket index support"""
     bucketIndices = self._e.getBucketIndices(self._d)
     topDown = self._e.getBucketInfo(bucketIndices)
-    topDownValues = numpy.array([elem.value for elem in topDown])
-    errs = topDownValues - numpy.array([320.25, 3.5, .167, 14.8])
+    topDownValues = cupy.array([elem.value for elem in topDown])
+    errs = topDownValues - cupy.array([320.25, 3.5, .167, 14.8])
     self.assertAlmostEqual(errs.max(), 0, 4)
 
     encodings = []
     for x in topDown:
       encodings.extend(x.encoding)
-    self.assertTrue(numpy.array_equal(encodings, self._expected))
+    self.assertTrue(cupy.array_equal(encodings, self._expected))
 
 
   def testHoliday(self):
@@ -142,9 +142,9 @@ class DateEncoderTest(unittest.TestCase):
     # use of forced is not recommended, used here for readibility, see
     # scalar.py
     e = DateEncoder(holiday=5, forced=True)
-    holiday = numpy.array([0,0,0,0,0,1,1,1,1,1], dtype="uint8")
-    notholiday = numpy.array([1,1,1,1,1,0,0,0,0,0], dtype="uint8")
-    holiday2 = numpy.array([0,0,0,1,1,1,1,1,0,0], dtype="uint8")
+    holiday = cupy.array([0,0,0,0,0,1,1,1,1,1], dtype="uint8")
+    notholiday = cupy.array([1,1,1,1,1,0,0,0,0,0], dtype="uint8")
+    holiday2 = cupy.array([0,0,0,1,1,1,1,1,0,0], dtype="uint8")
 
     d = datetime.datetime(2010, 12, 25, 4, 55)
     self.assertTrue(numpy.array_equal(e.encode(d), holiday))

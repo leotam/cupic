@@ -29,6 +29,7 @@ import copy
 import datetime
 import math
 import numpy
+import cupy
 import pickle
 import unittest2 as unittest
 
@@ -62,8 +63,8 @@ def _sampleDistribution(params, numSamples, verbosity=0):
 
   if verbosity > 0:
     print "\nSampling from distribution:", params
-    print "After estimation, mean=", numpy.mean(samples), \
-          "var=", numpy.var(samples), "stdev=", math.sqrt(numpy.var(samples))
+    print "After estimation, mean=", cupy.mean(samples), \
+          "var=", cupy.var(samples), "stdev=", math.sqrt(cupy.var(samples))
   return samples
 
 
@@ -378,7 +379,7 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
     function returns the expected results.
     """
     # 100 samples drawn from mean=0.4, stdev = 0.5
-    samples = numpy.array(
+    samples = cupy.array(
       [0.32259025, -0.44936321, -0.15784842, 0.72142628, 0.8794327,
        0.06323451, -0.15336159, -0.02261703, 0.04806841, 0.47219226,
        0.31102718, 0.57608799, 0.13621071, 0.92446815, 0.1870912,
@@ -457,8 +458,8 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
 
     # Number of points with lower than 2% probability should be pretty low
     # but not zero. Can't use exact 2% here due to random variations
-    self.assertLessEqual(numpy.sum(likelihoods < 0.02), 50)
-    self.assertGreaterEqual(numpy.sum(likelihoods < 0.02), 1)
+    self.assertLessEqual(cupy.sum(likelihoods < 0.02), 50)
+    self.assertGreaterEqual(cupy.sum(likelihoods < 0.02), 1)
 
 
   def testEstimateAnomalyLikelihoodsMalformedRecords(self):
@@ -557,8 +558,8 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
                         estimatorParams["movingAverage"]["total"])
 
     # We should have many more samples where likelihood is < 0.01, but not all
-    self.assertGreaterEqual(numpy.sum(likelihoods2 < 0.01), 25)
-    self.assertLessEqual(numpy.sum(likelihoods2 < 0.01), 250)
+    self.assertGreaterEqual(cupy.sum(likelihoods2 < 0.01), 25)
+    self.assertLessEqual(cupy.sum(likelihoods2 < 0.01), 250)
 
     #------------------------------------------
     # Step 3. Generate some new data with the expected average anomaly score. We
@@ -580,8 +581,8 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
 
     # We should have a small number samples where likelihood is < 0.02, but at
     # least one
-    self.assertGreaterEqual(numpy.sum(likelihoods3 < 0.01), 1)
-    self.assertLessEqual(numpy.sum(likelihoods3 < 0.01), 100)
+    self.assertGreaterEqual(cupy.sum(likelihoods3 < 0.01), 1)
+    self.assertLessEqual(cupy.sum(likelihoods3 < 0.01), 100)
 
     #------------------------------------------
     # Step 4. Validate that sending data incrementally is the same as sending
@@ -701,7 +702,7 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
     self.assertWithinEpsilon(dParams["mean"], data1[0][2])
 
     # Can't generate an estimate using no data points
-    data1 = numpy.zeros(0)
+    data1 = cupy.zeros(0)
     with self.assertRaises(ValueError):
       an.estimateAnomalyLikelihoods(data1)
 
@@ -735,12 +736,12 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
 
   def testFilterLikelihodsInputType(self):
     """
-    Calls _filterLikelihoods with both input types -- numpy array of floats and
+    Calls _filterLikelihoods with both input types -- cupy array of floats and
     list of floats.
     """
     l =[0.0, 0.0, 0.3, 0.3, 0.5]
     l2 = an._filterLikelihoods(l)
-    n = numpy.array(l)
+    n = cupy.array(l)
     n2 = an._filterLikelihoods(n)
     filtered = [0.0, 0.001, 0.3, 0.3, 0.5]
 
@@ -752,7 +753,7 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
     for i in range(len(n)):
       self.assertAlmostEqual(
         n2[i], filtered[i],
-        msg="Input of type numpy array returns incorrect result")
+        msg="Input of type cupy array returns incorrect result")
 
 
 
@@ -760,7 +761,7 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
     """
     Tests _filterLikelihoods function for several cases:
       i. Likelihood goes straight to redzone, skipping over yellowzone, repeats
-      ii. Case (i) with different values, and numpy array instead of float list
+      ii. Case (i) with different values, and cupy array instead of float list
       iii. A scenario where changing the redzone from four to five 9s should
            filter differently
     """
@@ -780,7 +781,7 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
 
 
     # Case (ii): values at indices 1-10 should be filtered to yellowzone
-    l = numpy.array([0.999978229, 0.999978229, 0.999999897, 1, 1, 1, 1,
+    l = cupy.array([0.999978229, 0.999978229, 0.999999897, 1, 1, 1, 1,
                      0.999999994, 0.999999966, 0.999999966, 0.999994331,
                      0.999516576, 0.99744487])
     l = 1.0 - l
@@ -793,7 +794,7 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
 
 
     # Case (iii): redThreshold difference should be at index 2
-    l = numpy.array([0.999968329, 0.999999897, 1, 1, 1,
+    l = cupy.array([0.999968329, 0.999999897, 1, 1, 1,
                      1, 0.999999994, 0.999999966, 0.999999966,
                      0.999994331, 0.999516576, 0.99744487])
     l = 1.0 - l
@@ -812,7 +813,7 @@ class AnomalyLikelihoodAlgorithmTest(TestCaseBase):
       self.assertAlmostEqual(l2b[i], l3b[i],
                              msg="Failure in case (iii), list b")
 
-    self.assertFalse(numpy.array_equal(l3a, l3b),
+    self.assertFalse(cupy.array_equal(l3a, l3b),
                      msg="Failure in case (iii), list 3")
 
 

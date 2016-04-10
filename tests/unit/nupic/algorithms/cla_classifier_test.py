@@ -29,6 +29,7 @@ import types
 import unittest2 as unittest
 
 import numpy
+import cupy
 import tempfile
 
 from nupic.algorithms.CLAClassifier import CLAClassifier
@@ -100,7 +101,7 @@ class CLAClassifierTest(unittest.TestCase):
   def testBucketIdxNumpyInt64Input(self):
     c = self._classifier([1], 0.1, 0.1, 0)
     result = c.compute(0, [1, 5, 9],
-                       {'bucketIdx': numpy.int64(4), 'actValue': 34.7}, True,
+                       {'bucketIdx': cupy.int64(4), 'actValue': 34.7}, True,
                        True)
     self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
     self.assertEqual(len(result['actualValues']), 1)

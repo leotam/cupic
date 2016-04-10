@@ -26,7 +26,7 @@ import cPickle as pickle
 import unittest
 
 import numpy
-
+import cupy
 from nupic.bindings.math import Random
 
 
@@ -68,8 +68,8 @@ class TestNupicRandom(unittest.TestCase):
 
   def testSample(self):
     r = Random(42)
-    population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    choices = numpy.zeros([2], dtype="uint32")
+    population = cupy.array([1, 2, 3, 4], dtype="uint32")
+    choices = cupy.zeros([2], dtype="uint32")
 
     r.sample(population, choices)
 
@@ -79,8 +79,8 @@ class TestNupicRandom(unittest.TestCase):
 
   def testSampleNone(self):
     r = Random(42)
-    population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    choices = numpy.zeros([0], dtype="uint32")
+    population = cupy.array([1, 2, 3, 4], dtype="uint32")
+    choices = cupy.zeros([0], dtype="uint32")
 
     # Just make sure there is no exception thrown.
     r.sample(population, choices)
@@ -90,8 +90,8 @@ class TestNupicRandom(unittest.TestCase):
 
   def testSampleAll(self):
     r = Random(42)
-    population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    choices = numpy.zeros([4], dtype="uint32")
+    population = cupy.array([1, 2, 3, 4], dtype="uint32")
+    choices = cupy.zeros([4], dtype="uint32")
 
     r.sample(population, choices)
 
@@ -104,8 +104,8 @@ class TestNupicRandom(unittest.TestCase):
   def testSampleWrongDimensionsPopulation(self):
     """Check that passing a multi-dimensional array throws a ValueError."""
     r = Random(42)
-    population = numpy.array([[1, 2], [3, 4]], dtype="uint32")
-    choices = numpy.zeros([2], dtype="uint32")
+    population = cupy.array([[1, 2], [3, 4]], dtype="uint32")
+    choices = cupy.zeros([2], dtype="uint32")
 
     self.assertRaises(ValueError, r.sample, population, choices)
 
@@ -113,8 +113,8 @@ class TestNupicRandom(unittest.TestCase):
   def testSampleWrongDimensionsChoices(self):
     """Check that passing a multi-dimensional array throws a ValueError."""
     r = Random(42)
-    population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    choices = numpy.zeros([2, 2], dtype="uint32")
+    population = cupy.array([1, 2, 3, 4], dtype="uint32")
+    choices = cupy.zeros([2, 2], dtype="uint32")
 
     self.assertRaises(ValueError, r.sample, population, choices)
 
@@ -133,24 +133,24 @@ class TestNupicRandom(unittest.TestCase):
 
   def testSampleBadDtype(self):
     r = Random(42)
-    population = numpy.array([1, 2, 3, 4], dtype="int64")
-    choices = numpy.zeros([2], dtype="int64")
+    population = cupy.array([1, 2, 3, 4], dtype="int64")
+    choices = cupy.zeros([2], dtype="int64")
 
     self.assertRaises(TypeError, r.sample, population, choices)
 
 
   def testSampleDifferentDtypes(self):
     r = Random(42)
-    population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    choices = numpy.zeros([2], dtype="uint64")
+    population = cupy.array([1, 2, 3, 4], dtype="uint32")
+    choices = cupy.zeros([2], dtype="uint64")
 
     self.assertRaises(ValueError, r.sample, population, choices)
 
 
   def testSamplePopulationTooSmall(self):
     r = Random(42)
-    population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    choices = numpy.zeros([5], dtype="uint32")
+    population = cupy.array([1, 2, 3, 4], dtype="uint32")
+    choices = cupy.zeros([5], dtype="uint32")
 
     self.assertRaises(
         ValueError, r.sample, population, choices)
@@ -158,7 +158,7 @@ class TestNupicRandom(unittest.TestCase):
 
   def testShuffle(self):
     r = Random(42)
-    arr = numpy.array([1, 2, 3, 4], dtype="uint32")
+    arr = cupy.array([1, 2, 3, 4], dtype="uint32")
 
     r.shuffle(arr)
 
@@ -170,7 +170,7 @@ class TestNupicRandom(unittest.TestCase):
 
   def testShuffleEmpty(self):
     r = Random(42)
-    arr = numpy.zeros([0], dtype="uint32")
+    arr = cupy.zeros([0], dtype="uint32")
 
     r.shuffle(arr)
 
@@ -179,14 +179,14 @@ class TestNupicRandom(unittest.TestCase):
 
   def testShuffleEmpty(self):
     r = Random(42)
-    arr = numpy.zeros([2, 2], dtype="uint32")
+    arr = cupy.zeros([2, 2], dtype="uint32")
 
     self.assertRaises(ValueError, r.shuffle, arr)
 
 
   def testShuffleBadDtype(self):
     r = Random(42)
-    arr = numpy.array([1, 2, 3, 4], dtype="int64")
+    arr = cupy.array([1, 2, 3, 4], dtype="int64")
 
     self.assertRaises(ValueError, r.shuffle, arr)
 

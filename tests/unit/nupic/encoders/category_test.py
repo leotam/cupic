@@ -26,6 +26,7 @@ import tempfile
 import unittest
 
 import numpy
+import cupy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import defaultDtype
