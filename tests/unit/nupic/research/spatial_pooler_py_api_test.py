@@ -22,6 +22,7 @@
 
 from mock import Mock, patch, ANY, call
 import numpy
+import cupy
 import cPickle as pickle
 import unittest2 as unittest
 
@@ -43,8 +44,8 @@ class SpatialPoolerAPITest(unittest.TestCase):
 
   def testCompute(self):
     # Check that there are no errors in call to compute
-    inputVector = numpy.ones(5)
-    activeArray = numpy.zeros(5)
+    inputVector = cupy.ones(5)
+    activeArray = cupy.zeros(5)
     self.sp.compute(inputVector, True, activeArray)
 
 
@@ -200,10 +201,10 @@ class SpatialPoolerAPITest(unittest.TestCase):
                        inputDimensions=[numColumns], 
                        potentialRadius=1, 
                        potentialPct=1)
-    inParam = numpy.array(
+    inParam = cupy.array(
       [0.06, 0.07, 0.08, 0.12, 0.13]).astype(realType)
     self.sp.setPermanence(0,inParam)
-    outParam = numpy.zeros(numInputs).astype(realType)
+    outParam = cupy.zeros(numInputs).astype(realType)
     self.sp.getPermanence(0, outParam)
     self.assertListEqual(list(inParam),list(outParam))
 
@@ -213,9 +214,9 @@ class SpatialPoolerAPITest(unittest.TestCase):
     numColumns = 3
     self.sp.initialize(columnDimensions=[numInputs], 
                        inputDimensions=[numColumns])
-    inParam = numpy.array([1, 1.2, 1.3, ]).astype(realType)
+    inParam = cupy.array([1, 1.2, 1.3, ]).astype(realType)
     self.sp.setBoostFactors(inParam)
-    outParam = numpy.zeros(numInputs).astype(realType)
+    outParam = cupy.zeros(numInputs).astype(realType)
     self.sp.getBoostFactors(outParam)
     self.assertListEqual(list(inParam),list(outParam))
 
@@ -225,9 +226,9 @@ class SpatialPoolerAPITest(unittest.TestCase):
     numColumns = 3
     self.sp.initialize(columnDimensions=[numInputs], 
                        inputDimensions=[numColumns])
-    inParam = numpy.array([0.9, 0.3, 0.1]).astype(realType)
+    inParam = cupy.array([0.9, 0.3, 0.1]).astype(realType)
     self.sp.setOverlapDutyCycles(inParam)
-    outParam = numpy.zeros(numInputs).astype(realType)
+    outParam = cupy.zeros(numInputs).astype(realType)
     self.sp.getOverlapDutyCycles(outParam)
     self.assertListEqual(list(inParam),list(outParam))
 
@@ -237,9 +238,9 @@ class SpatialPoolerAPITest(unittest.TestCase):
     numColumns = 3
     self.sp.initialize(columnDimensions=[numInputs], 
                        inputDimensions=[numColumns])
-    inParam = numpy.array([0.9, 0.99, 0.999, ]).astype(realType)
+    inParam = cupy.array([0.9, 0.99, 0.999, ]).astype(realType)
     self.sp.setActiveDutyCycles(inParam)
-    outParam = numpy.zeros(numInputs).astype(realType)
+    outParam = cupy.zeros(numInputs).astype(realType)
     self.sp.getActiveDutyCycles(outParam)
     self.assertListEqual(list(inParam),list(outParam))
 
@@ -249,9 +250,9 @@ class SpatialPoolerAPITest(unittest.TestCase):
     numColumns = 3
     self.sp.initialize(columnDimensions=[numInputs], 
                        inputDimensions=[numColumns])
-    inParam = numpy.array([0.01, 0.02, 0.035, ]).astype(realType)
+    inParam = cupy.array([0.01, 0.02, 0.035, ]).astype(realType)
     self.sp.setMinOverlapDutyCycles(inParam)
-    outParam = numpy.zeros(numInputs).astype(realType)
+    outParam = cupy.zeros(numInputs).astype(realType)
     self.sp.getMinOverlapDutyCycles(outParam)
     self.assertListEqual(list(inParam),list(outParam))
 
@@ -261,9 +262,9 @@ class SpatialPoolerAPITest(unittest.TestCase):
     numColumns = 3
     self.sp.initialize(columnDimensions=[numInputs], 
                        inputDimensions=[numColumns])
-    inParam = numpy.array([0.01, 0.02, 0.035, ]).astype(realType)
+    inParam = cupy.array([0.01, 0.02, 0.035, ]).astype(realType)
     self.sp.setMinActiveDutyCycles(inParam)
-    outParam = numpy.zeros(numInputs).astype(realType)
+    outParam = cupy.zeros(numInputs).astype(realType)
     self.sp.getMinActiveDutyCycles(outParam)
     self.assertListEqual(list(inParam),list(outParam))
 
@@ -274,13 +275,13 @@ class SpatialPoolerAPITest(unittest.TestCase):
     numColumns = 3
     self.sp.initialize(columnDimensions=[numInputs], 
                        inputDimensions=[numColumns])
-    inParam1 = numpy.array([1, 0, 1]).astype(uintType)
+    inParam1 = cupy.array([1, 0, 1]).astype(uintType)
     self.sp.setPotential(0, inParam1)
-    inParam2 = numpy.array([1, 1, 0]).astype(uintType)
+    inParam2 = cupy.array([1, 1, 0]).astype(uintType)
     self.sp.setPotential(1, inParam2)
 
-    outParam1 = numpy.zeros(numInputs).astype(uintType)
-    outParam2 = numpy.zeros(numInputs).astype(uintType)
+    outParam1 = cupy.zeros(numInputs).astype(uintType)
+    outParam2 = cupy.zeros(numInputs).astype(uintType)
     self.sp.getPotential(0, outParam1)
     self.sp.getPotential(1, outParam2)
 
@@ -295,12 +296,12 @@ class SpatialPoolerAPITest(unittest.TestCase):
                        inputDimensions=[numColumns], 
                        potentialRadius=1, 
                        potentialPct=1)
-    inParam = numpy.array(
+    inParam = cupy.array(
       [0.06, 0.07, 0.08, 0.12, 0.13]).astype(realType)
-    trueConnected = numpy.array([0, 0, 0, 1, 1])
+    trueConnected = cupy.array([0, 0, 0, 1, 1])
     self.sp.setSynPermConnected(0.1)
     self.sp.setPermanence(0,inParam)
-    outParam = numpy.zeros(numInputs).astype(uintType)
+    outParam = cupy.zeros(numInputs).astype(uintType)
     self.sp.getConnectedSynapses(0, outParam)
     self.assertListEqual(list(trueConnected),list(outParam))
 
@@ -312,12 +313,12 @@ class SpatialPoolerAPITest(unittest.TestCase):
                        inputDimensions=[numColumns], 
                        potentialRadius=1, 
                        potentialPct=1)
-    inParam = numpy.array(
+    inParam = cupy.array(
       [0.06, 0.07, 0.08, 0.12, 0.11]).astype(realType)
     trueConnectedCount = 2
     self.sp.setSynPermConnected(0.1)
     self.sp.setPermanence(0, inParam)
-    outParam = numpy.zeros(numInputs).astype(uintType)
+    outParam = cupy.zeros(numInputs).astype(uintType)
     self.sp.getConnectedCounts(outParam)
     self.assertEqual(trueConnectedCount, outParam[0])
 

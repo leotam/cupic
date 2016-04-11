@@ -28,6 +28,7 @@ import tempfile
 import unittest2 as unittest
 
 import numpy
+import cupy
 
 from nupic.encoders.pass_through_encoder import PassThroughEncoder
 
@@ -65,7 +66,7 @@ class PassThroughEncoderTest(unittest.TestCase):
   def testEncodeBitArray(self):
     """Send bitmap as numpy bit array"""
     e = self._encoder(self.n, name=self.name)
-    bitmap = numpy.zeros(self.n, dtype=numpy.uint8)
+    bitmap = cupy.zeros(self.n, dtype=cupy.uint8)
     bitmap[3] = 1
     bitmap[5] = 1
     out = e.encode(bitmap)

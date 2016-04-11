@@ -22,6 +22,7 @@
 
 import time
 import numpy
+import cupy
 import unittest2 as unittest
 
 from nupic.support.unittesthelpers.algorithm_test_helpers \
@@ -111,7 +112,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
     # Create a set of input vectors, x
     # B,C,D don't overlap at all with other patterns
-    self.x = numpy.zeros((5, self.inputSize), dtype=uintType)
+    self.x = cupy.zeros((5, self.inputSize), dtype=uintType)
     self.x[0, 0:20]  = 1   # Input pattern A
     self.x[1, 10:30] = 1   # Input pattern A' (half the bits overlap with A)
     self.x[2, 30:50] = 1   # Input pattern B  (no overlap with others)
@@ -120,7 +121,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
     # For each column, this will contain the last iteration number where that
     # column was a winner
-    self.winningIteration = numpy.zeros(self.columnDimensions)
+    self.winningIteration = cupy.zeros(self.columnDimensions)
     
     # For each input vector i, lastSDR[i] contains the most recent SDR output
     # by the SP.
@@ -153,13 +154,13 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     Helpful debug print statements while debugging this test.
     """
 
-    minDutyCycle = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
+    minDutyCycle = cupy.zeros(self.columnDimensions, dtype=GetNTAReal())
     self.sp.getMinActiveDutyCycles(minDutyCycle)
     
-    activeDutyCycle = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
+    activeDutyCycle = cupy.zeros(self.columnDimensions, dtype=GetNTAReal())
     self.sp.getActiveDutyCycles(activeDutyCycle)
     
-    boost = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
+    boost = cupy.zeros(self.columnDimensions, dtype=GetNTAReal())
     self.sp.getBoostFactors(boost)
     print "\n--------- ITERATION", (
       self.sp.getIterationNum() ),"-----------------------"
@@ -206,7 +207,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
   def boostTestPhase1(self):
     
-    y = numpy.zeros(self.columnDimensions, dtype = uintType)
+    y = cupy.zeros(self.columnDimensions, dtype = uintType)
 
     # Do one training batch through the input patterns
     for idx, v in enumerate(self.x):
@@ -216,7 +217,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       self.lastSDR[idx] = y.copy()
 
     # The boost factor for all columns should be at 1.
-    boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
+    boost = cupy.zeros(self.columnDimensions, dtype = GetNTAReal())
     self.sp.getBoostFactors(boost)
     self.assertEqual((boost==1).sum(), self.columnDimensions,
       "Boost factors are not all 1")
@@ -227,7 +228,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     
     # All the never-active columns should have duty cycle of 0
     # All the at-least-once-active columns should have duty cycle >= 0.2
-    dutyCycles = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
+    dutyCycles = cupy.zeros(self.columnDimensions, dtype = GetNTAReal())
     self.sp.getActiveDutyCycles(dutyCycles)
     self.assertEqual(dutyCycles[self.winningIteration == 0].sum(), 0,
                      "Inactive columns have positive duty cycle.")
@@ -240,8 +241,8 @@ class SpatialPoolerBoostTest(unittest.TestCase):
 
   def boostTestPhase2(self):
 
-    y = numpy.zeros(self.columnDimensions, dtype = uintType)
-    boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
+    y = cupy.zeros(self.columnDimensions, dtype = uintType)
+    boost = cupy.zeros(self.columnDimensions, dtype = GetNTAReal())
 
     # Do 9 training batch through the input patterns
     for _ in range(9):
@@ -262,7 +263,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       "More than 60% of the columns have been active")
     
     # All the never-active columns should have duty cycle of 0
-    dutyCycles = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
+    dutyCycles = cupy.zeros(self.columnDimensions, dtype = GetNTAReal())
     self.sp.getActiveDutyCycles(dutyCycles)
     self.assertEqual(dutyCycles[self.winningIteration == 0].sum(), 0,
                      "Inactive columns have positive duty cycle.")
@@ -281,7 +282,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def boostTestPhase3(self):
 
     # Do two more training batches through the input patterns
-    y = numpy.zeros(self.columnDimensions, dtype = uintType)
+    y = cupy.zeros(self.columnDimensions, dtype = uintType)
     for _ in range(2):
       for idx, v in enumerate(self.x):
         y.fill(0)
@@ -290,7 +291,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
         self.lastSDR[idx] = y.copy()
 
         # The boost factor for all columns that just won should be at 1.
-        boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
+        boost = cupy.zeros(self.columnDimensions, dtype = GetNTAReal())
         self.sp.getBoostFactors(boost)
         self.assertEqual(((boost[y.nonzero()[0]])!=1).sum(), 0,
           "Boost factors of winning columns not 1")
@@ -311,17 +312,17 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   def boostTestPhase4(self):
     
     # The boost factor for all columns that just won should be at 1.
-    boostAtBeg = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
+    boostAtBeg = cupy.zeros(self.columnDimensions, dtype=GetNTAReal())
     self.sp.getBoostFactors(boostAtBeg)
 
     # Do one more iteration through the input patterns with learning OFF
-    y = numpy.zeros(self.columnDimensions, dtype=uintType)
+    y = cupy.zeros(self.columnDimensions, dtype=uintType)
     for _, v in enumerate(self.x):
       y.fill(0)
       self.sp.compute(v, False, y)
 
       # The boost factor for all columns that just won should be at 1.
-      boost = numpy.zeros(self.columnDimensions, dtype=GetNTAReal())
+      boost = cupy.zeros(self.columnDimensions, dtype=GetNTAReal())
       self.sp.getBoostFactors(boost)
       self.assertEqual(boost.sum(), boostAtBeg.sum(),
         "Boost factors changed when learning is off")

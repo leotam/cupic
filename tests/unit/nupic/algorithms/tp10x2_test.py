@@ -25,7 +25,8 @@
 import cPickle as pickle
 import unittest2 as unittest
 
-import numpy
+# import numpy
+import cupy
 
 from nupic.bindings.math import Random
 from nupic.research import fdrutilities as fdrutils
@@ -76,7 +77,7 @@ class TP10X2Test(unittest.TestCase):
 
     # Learn
     for i in xrange(5):
-      x = numpy.zeros(tp.numberOfCols, dtype='uint32')
+      x = cupy.zeros(tp.numberOfCols, dtype='uint32')
       _RGEN.initializeUInt32Array(x, 2)
       tp.learn(x)
 
@@ -88,12 +89,12 @@ class TP10X2Test(unittest.TestCase):
     self.assertTrue(fdrutils.tpDiff2(tp, tp2, VERBOSITY))
 
     ## Infer
-    patterns = numpy.zeros((4, tp.numberOfCols), dtype='uint32')
+    patterns = cupy.zeros((4, tp.numberOfCols), dtype='uint32')
     for i in xrange(4):
       _RGEN.initializeUInt32Array(patterns[i], 2)
 
     for i in xrange(10):
-      x = numpy.zeros(tp.numberOfCols, dtype='uint32')
+      x = cupy.zeros(tp.numberOfCols, dtype='uint32')
       _RGEN.initializeUInt32Array(x, 2)
       tp.infer(x)
       if i > 0:
@@ -212,13 +213,13 @@ class TP10X2Test(unittest.TestCase):
     tpPy.reset()
     setVerbosity(INFERENCE_VERBOSITY, tp, tpPy)
 
-    patterns = numpy.zeros((40, tp.numberOfCols), dtype='uint32')
+    patterns = cupy.zeros((40, tp.numberOfCols), dtype='uint32')
     for i in xrange(4):
       _RGEN.initializeUInt32Array(patterns[i], 2)
 
     for i, x in enumerate(patterns):
 
-      x = numpy.zeros(tp.numberOfCols, dtype='uint32')
+      x = cupy.zeros(tp.numberOfCols, dtype='uint32')
       _RGEN.initializeUInt32Array(x, 2)
       y = tp.infer(x)
       yPy = tpPy.infer(x)

@@ -30,6 +30,7 @@ from copy import copy
 
 from mock import Mock
 import numpy
+import cupy
 
 from nupic.support.unittesthelpers.algorithm_test_helpers import (
   getNumpyRandomGenerator, getSeed)
@@ -102,12 +103,12 @@ class SpatialPoolerTest(unittest.TestCase):
         seed=getSeed(),
         spVerbosity=0)
 
-    sp._potentialPools = BinaryCorticalColumns(numpy.ones([sp._numColumns,
+    sp._potentialPools = BinaryCorticalColumns(cupy.ones([sp._numColumns,
                                                            sp._numInputs]))
-    sp._inhibitColumns = Mock(return_value = numpy.array(range(5)))
+    sp._inhibitColumns = Mock(return_value = cupy.array(range(5)))
 
-    inputVector = numpy.array([1, 0, 1, 0, 1, 0, 0, 1, 1])
-    activeArray = numpy.zeros(5)
+    inputVector = cupy.array([1, 0, 1, 0, 1, 0, 0, 1, 1])
+    activeArray = cupy.zeros(5)
     for i in xrange(20):
       sp.compute(inputVector, True, activeArray)
 
@@ -139,10 +140,10 @@ class SpatialPoolerTest(unittest.TestCase):
         seed=getSeed(),
         spVerbosity=0)
 
-    sp._inhibitColumns = Mock(return_value = numpy.array(range(5)))
+    sp._inhibitColumns = Mock(return_value = cupy.array(range(5)))
 
-    inputVector = numpy.ones(sp._numInputs)
-    activeArray = numpy.zeros(5)
+    inputVector = cupy.ones(sp._numInputs)
+    activeArray = cupy.zeros(5)
     for i in xrange(20):
       sp.compute(inputVector, True, activeArray)
 
@@ -204,9 +205,9 @@ class SpatialPoolerTest(unittest.TestCase):
                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-    inputArray = numpy.array(inputVector).astype(realDType)
+    inputArray = cupy.array(inputVector).astype(realDType)
 
-    activeArray = numpy.zeros(2048)
+    activeArray = cupy.zeros(2048)
 
     sp.compute(inputArray, 1, activeArray)
 
@@ -218,31 +219,31 @@ class SpatialPoolerTest(unittest.TestCase):
   def testStripNeverLearned(self):
     sp = self._sp
 
-    sp._activeDutyCycles = numpy.array([0.5, 0.1, 0, 0.2, 0.4, 0])
-    activeArray = numpy.array([1, 1, 1, 0, 1, 0])
+    sp._activeDutyCycles = cupy.array([0.5, 0.1, 0, 0.2, 0.4, 0])
+    activeArray = cupy.array([1, 1, 1, 0, 1, 0])
     sp.stripUnlearnedColumns(activeArray)
-    stripped = numpy.where(activeArray == 1)[0]
+    stripped = cupy.where(activeArray == 1)[0]
     trueStripped = [0, 1, 4]
     self.assertListEqual(trueStripped, list(stripped))
 
-    sp._activeDutyCycles = numpy.array([0.9, 0, 0, 0, 0.4, 0.3])
-    activeArray = numpy.ones(6)
+    sp._activeDutyCycles = cupy.array([0.9, 0, 0, 0, 0.4, 0.3])
+    activeArray = cupy.ones(6)
     sp.stripUnlearnedColumns(activeArray)
-    stripped = numpy.where(activeArray == 1)[0]
+    stripped = cupy.where(activeArray == 1)[0]
     trueStripped = [0, 4, 5]
     self.assertListEqual(trueStripped, list(stripped))
 
-    sp._activeDutyCycles = numpy.array([0, 0, 0, 0, 0, 0])
-    activeArray = numpy.ones(6)
+    sp._activeDutyCycles = cupy.array([0, 0, 0, 0, 0, 0])
+    activeArray = cupy.ones(6)
     sp.stripUnlearnedColumns(activeArray)
-    stripped = numpy.where(activeArray == 1)[0]
+    stripped = cupy.where(activeArray == 1)[0]
     trueStripped = []
     self.assertListEqual(trueStripped, list(stripped))
 
-    sp._activeDutyCycles = numpy.ones(6)
-    activeArray = numpy.ones(6)
+    sp._activeDutyCycles = cupy.ones(6)
+    activeArray = cupy.ones(6)
     sp.stripUnlearnedColumns(activeArray)
-    stripped = numpy.where(activeArray == 1)[0]
+    stripped = cupy.where(activeArray == 1)[0]
     trueStripped = range(6)
     self.assertListEqual(trueStripped, list(stripped))
 
@@ -333,9 +334,9 @@ class SpatialPoolerTest(unittest.TestCase):
     params["potentialPct"] = 0.5
     sp = SpatialPooler(**params)
 
-    supersetMask = numpy.array([1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1])
+    supersetMask = cupy.array([1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1])
     mask = sp._mapPotential(0, wrapAround=True)
-    self.assertEqual(numpy.sum(mask), 3)
+    self.assertEqual(cupy.sum(mask), 3)
     unionMask = supersetMask | mask.astype(int)
     self.assertListEqual(unionMask.tolist(), supersetMask.tolist())
 

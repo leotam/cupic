@@ -23,6 +23,7 @@
 """Unit tests for logarithmic encoder"""
 
 import numpy
+import cupy
 import math
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
@@ -95,7 +96,7 @@ class LogEncoderTest(unittest.TestCase):
     # w bits on in an array of len width.
     expected = [1, 1, 1, 1, 1] + 40 * [0]
     # Convert to numpy array
-    expected = numpy.array(expected, dtype="uint8")
+    expected = cupy.array(expected, dtype="uint8")
 
     self.assertTrue(numpy.array_equal(output, expected))
 
@@ -160,7 +161,7 @@ class LogEncoderTest(unittest.TestCase):
     # increase of 2 decades = 20 decibels
     # bit 0, 1 are padding; bit 3 is 1, ..., bit 22 is 20 (23rd bit)
     expected = 20 * [0] + [1, 1, 1, 1, 1] + 20 * [0]
-    expected = numpy.array(expected, dtype="uint8")
+    expected = cupy.array(expected, dtype="uint8")
     self.assertTrue(numpy.array_equal(output, expected))
 
     # Test reverse lookup
@@ -174,7 +175,7 @@ class LogEncoderTest(unittest.TestCase):
     # Verify next power of 10 encoding
     output = le.encode(10000)
     expected = 40 * [0] + [1, 1, 1, 1, 1]
-    expected = numpy.array(expected, dtype="uint8")
+    expected = cupy.array(expected, dtype="uint8")
     self.assertTrue(numpy.array_equal(output, expected))
 
     # Test reverse lookup
@@ -210,8 +211,8 @@ class LogEncoderTest(unittest.TestCase):
       expected.append(val)
       exp += inc
 
-    expected = numpy.array(expected)
-    actual = numpy.array(le.getBucketValues())
+    expected = cupy.array(expected)
+    actual = cupy.array(le.getBucketValues())
 
     numpy.testing.assert_almost_equal(expected, actual, 7)
 
@@ -236,14 +237,14 @@ class LogEncoderTest(unittest.TestCase):
     output = le.encode(value)
     expected = [1, 0, 0, 0, 0]
     # Convert to numpy array
-    expected = numpy.array(expected, dtype="uint8")
+    expected = cupy.array(expected, dtype="uint8")
     self.assertTrue(numpy.array_equal(output, expected))
 
     value = 100.0
     output = le.encode(value)
     expected = [0, 0, 1, 0, 0]
     # Convert to numpy array
-    expected = numpy.array(expected, dtype="uint8")
+    expected = cupy.array(expected, dtype="uint8")
     self.assertTrue(numpy.array_equal(output, expected))
 
 

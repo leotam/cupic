@@ -28,7 +28,7 @@ import tempfile
 import unittest2 as unittest
 
 import numpy
-
+# import cupy
 from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
 
 

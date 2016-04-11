@@ -26,7 +26,8 @@ import cPickle as pickle
 import hashlib
 import os
 
-import numpy as np
+import cupy as np
+import numpy
 import unittest2 as unittest
 
 from nupic.bindings.algorithms import svm_dense, svm_01
@@ -133,7 +134,7 @@ class SVMTest(unittest.TestCase):
     nClass = 3
     size = 1000
     labels = _RGEN.random_integers(0, nClass - 1, size)
-    samples = np.random.random(size=(size, nDims)).astype(_DTYPE)
+    samples = numpy.random.random(size=(size, nDims)).astype(_DTYPE)
 
     classifier = svm_dense(0, nDims, seed=_SEED)
 

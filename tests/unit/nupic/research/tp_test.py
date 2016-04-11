@@ -32,6 +32,7 @@ import tempfile
 import unittest2 as unittest
 
 import numpy
+import cupy
 from pkg_resources import resource_filename
 
 from nupic.research import fdrutilities
@@ -140,7 +141,7 @@ class TPTest(unittest.TestCase):
       reader = csv.reader(fin)
       records = []
       for bottomUpInStr in fin:
-        bottomUpIn = numpy.array(eval('[' + bottomUpInStr.strip() + ']'),
+        bottomUpIn = cupy.array(eval('[' + bottomUpInStr.strip() + ']'),
                                  dtype='int32')
         records.append(bottomUpIn)
 
@@ -215,7 +216,7 @@ class TPTest(unittest.TestCase):
 
     nOnes = random.randint(minOnes, maxOnes)
     ind = random.sample(xrange(numCols), nOnes)
-    x = numpy.zeros(numCols, dtype='float32')
+    x = cupy.zeros(numCols, dtype='float32')
     x[ind] = 1
 
     return x

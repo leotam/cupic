@@ -28,7 +28,8 @@ TODO: implement an SP Diff routine.  That should be fun!
 """
 
 import cPickle as pickle
-import numpy as np
+import cupy as np
+import numpy
 import random
 import time
 
@@ -81,7 +82,7 @@ class SPLearnInferenceTest(unittest.TestCase):
         synPermConnected=0.11,)
 
     random.seed(seed)
-    np.random.seed(seed)
+    numpy.random.seed(seed)
 
     # Build up training set with numTrainingRecords patterns
     inputs = []         # holds post-encoded input patterns
@@ -94,7 +95,7 @@ class SPLearnInferenceTest(unittest.TestCase):
     startTime = time.time()
 
     random.seed(seed)
-    np.random.seed(seed)
+    numpy.random.seed(seed)
     for i in xrange(numTrainingRecords):
       if spVerbosity > 0:
         print "Input #%d" % i

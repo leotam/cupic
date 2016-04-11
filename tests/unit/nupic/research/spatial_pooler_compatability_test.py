@@ -22,6 +22,7 @@
 
 import cPickle as pickle
 import numpy
+import cupy
 import unittest2 as unittest
 import time
 import traceback
@@ -104,58 +105,58 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     numColumns = pySp.getNumColumns()
     numInputs = pySp.getNumInputs()
 
-    pyBoost = numpy.zeros(numColumns).astype(realType)
-    cppBoost = numpy.zeros(numColumns).astype(realType)
+    pyBoost = cupy.zeros(numColumns).astype(realType)
+    cppBoost = cupy.zeros(numColumns).astype(realType)
     pySp.getBoostFactors(pyBoost)
     cppSp.getBoostFactors(cppBoost)
     self.assertListAlmostEqual(list(pyBoost), list(cppBoost))
 
-    pyOverlap = numpy.zeros(numColumns).astype(realType)
-    cppOverlap = numpy.zeros(numColumns).astype(realType)
+    pyOverlap = cupy.zeros(numColumns).astype(realType)
+    cppOverlap = cupy.zeros(numColumns).astype(realType)
     pySp.getOverlapDutyCycles(pyOverlap)
     cppSp.getOverlapDutyCycles(cppOverlap)
     self.assertListAlmostEqual(list(pyOverlap), list(cppOverlap))
 
-    pyActive = numpy.zeros(numColumns).astype(realType)
-    cppActive = numpy.zeros(numColumns).astype(realType)
+    pyActive = cupy.zeros(numColumns).astype(realType)
+    cppActive = cupy.zeros(numColumns).astype(realType)
     pySp.getActiveDutyCycles(pyActive)
     cppSp.getActiveDutyCycles(cppActive)
     self.assertListAlmostEqual(list(pyActive), list(cppActive))
 
-    pyMinOverlap = numpy.zeros(numColumns).astype(realType)
-    cppMinOverlap = numpy.zeros(numColumns).astype(realType)
+    pyMinOverlap = cupy.zeros(numColumns).astype(realType)
+    cppMinOverlap = cupy.zeros(numColumns).astype(realType)
     pySp.getMinOverlapDutyCycles(pyMinOverlap)
     cppSp.getMinOverlapDutyCycles(cppMinOverlap)
     self.assertListAlmostEqual(list(pyMinOverlap), list(cppMinOverlap))
 
-    pyMinActive = numpy.zeros(numColumns).astype(realType)
-    cppMinActive = numpy.zeros(numColumns).astype(realType)
+    pyMinActive = cupy.zeros(numColumns).astype(realType)
+    cppMinActive = cupy.zeros(numColumns).astype(realType)
     pySp.getMinActiveDutyCycles(pyMinActive)
     cppSp.getMinActiveDutyCycles(cppMinActive)
     self.assertListAlmostEqual(list(pyMinActive), list(cppMinActive))
 
     for i in xrange(pySp.getNumColumns()):
       if self.verbosity > 2: print "Column:",i
-      pyPot = numpy.zeros(numInputs).astype(uintType)
-      cppPot = numpy.zeros(numInputs).astype(uintType)
+      pyPot = cupy.zeros(numInputs).astype(uintType)
+      cppPot = cupy.zeros(numInputs).astype(uintType)
       pySp.getPotential(i, pyPot)
       cppSp.getPotential(i, cppPot)
       self.assertListEqual(list(pyPot),list(cppPot))
 
-      pyPerm = numpy.zeros(numInputs).astype(realType)
-      cppPerm = numpy.zeros(numInputs).astype(realType)
+      pyPerm = cupy.zeros(numInputs).astype(realType)
+      cppPerm = cupy.zeros(numInputs).astype(realType)
       pySp.getPermanence(i, pyPerm)
       cppSp.getPermanence(i, cppPerm)
       self.assertListAlmostEqual(list(pyPerm),list(cppPerm))
 
-      pyCon = numpy.zeros(numInputs).astype(uintType)
-      cppCon = numpy.zeros(numInputs).astype(uintType)
+      pyCon = cupy.zeros(numInputs).astype(uintType)
+      cppCon = cupy.zeros(numInputs).astype(uintType)
       pySp.getConnectedSynapses(i, pyCon)
       cppSp.getConnectedSynapses(i, cppCon)
       self.assertListEqual(list(pyCon), list(cppCon))
 
-    pyConCounts = numpy.zeros(numColumns).astype(uintType)
-    cppConCounts = numpy.zeros(numColumns).astype(uintType)
+    pyConCounts = cupy.zeros(numColumns).astype(uintType)
+    cppConCounts = cupy.zeros(numColumns).astype(uintType)
     pySp.getConnectedCounts(pyConCounts)
     cppSp.getConnectedCounts(cppConCounts)
     self.assertListEqual(list(pyConCounts), list(cppConCounts))
@@ -193,8 +194,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
         learn = learnMode
       if self.verbosity > 1:
         print "Iteration:",i,"learn=",learn
-      PyActiveArray = numpy.zeros(numColumns).astype(uintType)
-      CppActiveArray = numpy.zeros(numColumns).astype(uintType)
+      PyActiveArray = cupy.zeros(numColumns).astype(uintType)
+      CppActiveArray = cupy.zeros(numColumns).astype(uintType)
       inputVector = inputMatrix[i,:]
       
       pySp.compute(inputVector, learn, PyActiveArray)
@@ -221,15 +222,15 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       randomState.rand(numRecords,numInputs) > threshold).astype(uintType)
 
     for i in xrange(numRecords/2):
-      activeArray = numpy.zeros(numColumns).astype(uintType)
+      activeArray = cupy.zeros(numColumns).astype(uintType)
       inputVector = inputMatrix[i,:]
       learn = (randomState.rand() > 0.5)
       sp1.compute(inputVector, learn, activeArray)
 
     sp2 = pickle.loads(pickle.dumps(sp1))
     for i in xrange(numRecords/2+1,numRecords):
-      activeArray1 = numpy.zeros(numColumns).astype(uintType)
-      activeArray2 = numpy.zeros(numColumns).astype(uintType)
+      activeArray1 = cupy.zeros(numColumns).astype(uintType)
+      activeArray2 = cupy.zeros(numColumns).astype(uintType)
       inputVector = inputMatrix[i,:]
       learn = (randomState.rand() > 0.5)
       sp1.compute(inputVector, learn, activeArray1)
@@ -419,13 +420,13 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     cppSp = CPPSpatialPooler(
         inputDimensions=[121], columnDimensions=[300])
 
-    data = numpy.zeros([121], dtype=uintType)
+    data = cupy.zeros([121], dtype=uintType)
     for i in xrange(21):
       data[i] = 1
 
     nCols = 300
-    d1 = numpy.zeros(nCols, dtype=uintType)
-    d2 = numpy.zeros(nCols, dtype=uintType)
+    d1 = cupy.zeros(nCols, dtype=uintType)
+    d2 = cupy.zeros(nCols, dtype=uintType)
 
     pySp.compute(data, True, d1) # learn
     cppSp.compute(data, True, d2)
@@ -445,13 +446,13 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     cppSp = CPPSpatialPooler(
         inputDimensions=[121, 1], columnDimensions=[30, 30])
 
-    data = numpy.zeros([121, 1], dtype=uintType)
+    data = cupy.zeros([121, 1], dtype=uintType)
     for i in xrange(21):
       data[i][0] = 1
 
     nCols = 900
-    d1 = numpy.zeros(nCols, dtype=uintType)
-    d2 = numpy.zeros(nCols, dtype=uintType)
+    d1 = cupy.zeros(nCols, dtype=uintType)
+    d2 = cupy.zeros(nCols, dtype=uintType)
 
     pySp.compute(data, True, d1) # learn
     cppSp.compute(data, True, d2)

@@ -22,8 +22,8 @@
 
 import unittest
 
-import numpy as np
-
+import cupy as np
+import numpy
 from nupic.bindings.math import GetNTAReal
 from nupic.bindings.algorithms import SpatialPooler
 # Uncomment below line to use python SpatialPooler

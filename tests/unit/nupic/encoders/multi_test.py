@@ -23,6 +23,7 @@
 """Unit tests for multi- encoder"""
 
 import numpy
+import cupy
 import tempfile
 import unittest2 as unittest
 
@@ -62,7 +63,7 @@ class MultiEncoderTest(unittest.TestCase):
     self.assertEqual(e.getDescription(), [("day of week", 0), ("aux", 7)])
 
     d = DictObj(dow=3, myval=10)
-    expected=numpy.array([0,1,1,1,0,0,0] + [0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+    expected=cupy.array([0,1,1,1,0,0,0] + [0,0,0,0,0,0,0,0,0,1,1,1,1,1],
                          dtype="uint8")
     output = e.encode(d)
     self.assertTrue(numpy.array_equal(expected, output))

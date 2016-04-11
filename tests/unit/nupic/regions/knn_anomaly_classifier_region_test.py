@@ -26,7 +26,9 @@ import sys
 import copy
 from datetime import datetime
 import unittest2 as unittest
-import numpy
+# import numpy
+import cupy
+
 from mock import Mock, patch, ANY, call
 
 from nupic.support.unittesthelpers.testcasebase import (unittest,
@@ -150,7 +152,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
   @patch.object(KNNAnomalyClassifierRegion, 'classifyState')
   def testAddLabel(self, classifyState, constructVector, getVector):
     # Setup Mocks
-    getVector.return_value = numpy.array([0, 0, 0, 1, 0, 0, 1])
+    getVector.return_value = cupy.array([0, 0, 0, 1, 0, 0, 1])
     knn = self.helper._knnclassifier._knn
     knn.learn = Mock()
 
@@ -317,15 +319,15 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
     self.helper._anomalyVectorLength = 20
     records = [
-      Mock(ROWID=10, anomalyLabel=["Test"], anomalyScore=1, setByUser=False, anomalyVector=numpy.array([1,4])),
-      Mock(ROWID=11, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=numpy.array([1,2])),
-      Mock(ROWID=12, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=numpy.array([1,4])),
-      Mock(ROWID=13, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=numpy.array([1,2,6,7])),
-      Mock(ROWID=14, anomalyLabel=["Test"], anomalyScore=1, setByUser=False, anomalyVector=numpy.array([1,10])),
-      Mock(ROWID=15, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=numpy.array([1,3])),
-      Mock(ROWID=16, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=numpy.array([1,4])),
-      Mock(ROWID=17, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=numpy.array([10])),
-      Mock(ROWID=18, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=numpy.array([1,4]))]
+      Mock(ROWID=10, anomalyLabel=["Test"], anomalyScore=1, setByUser=False, anomalyVector=cupy.array([1,4])),
+      Mock(ROWID=11, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=cupy.array([1,2])),
+      Mock(ROWID=12, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=cupy.array([1,4])),
+      Mock(ROWID=13, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=cupy.array([1,2,6,7])),
+      Mock(ROWID=14, anomalyLabel=["Test"], anomalyScore=1, setByUser=False, anomalyVector=cupy.array([1,10])),
+      Mock(ROWID=15, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=cupy.array([1,3])),
+      Mock(ROWID=16, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=cupy.array([1,4])),
+      Mock(ROWID=17, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=cupy.array([10])),
+      Mock(ROWID=18, anomalyLabel=["Test"], anomalyScore=0, setByUser=False, anomalyVector=cupy.array([1,4]))]
 
     getRecord.side_effect = records
 
@@ -477,7 +479,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
   @patch.object(KNNAnomalyClassifierRegion, '_getStateAnomalyVector')
   def testAddRecordToKNN(self, getAnomalyVector):
-    getAnomalyVector.return_value = numpy.array([0, 1, 0, 0, 1, 0, 1, 1])
+    getAnomalyVector.return_value = cupy.array([0, 1, 0, 0, 1, 0, 1, 1])
     values = {
       'categoryRecencyList': [1, 2, 3]
     }
@@ -488,7 +490,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     state = {
       "ROWID": 5,
       "anomalyScore": 1.0,
-      "anomalyVector": numpy.array([1, 5, 7, 8]),
+      "anomalyVector": cupy.array([1, 5, 7, 8]),
       "anomalyLabel": ["Label"],
       "setByUser": False
     }
@@ -543,7 +545,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     self.helper.trainRecords = 0
     values = {
       'categoryRecencyList': [1, 2, 3, 5, 6, 7, 8, 9],
-      'latestDists': numpy.array([0.7, 0.2, 0.5, 1, 0.3, 0.2, 0.1]),
+      'latestDists': cupy.array([0.7, 0.2, 0.5, 1, 0.3, 0.2, 0.1]),
       'categories': ['A','B','C','D','E','F','G']
     }
     classifier = self.helper._knnclassifier
@@ -588,7 +590,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
         'activeOutputCount': 5
       },
       'output': {
-        'bottomUpOut': numpy.array([1, 1, 0, 0, 1])
+        'bottomUpOut': cupy.array([1, 1, 0, 0, 1])
       }
     }
     tpVals = {
@@ -597,8 +599,8 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
         'columnCount': 2
       },
       'output': {
-        'lrnActive': numpy.array([1, 0, 0, 1]),
-        'topDownOut': numpy.array([1, 0, 0, 0, 1])
+        'lrnActive': cupy.array([1, 0, 0, 1]),
+        'topDownOut': cupy.array([1, 0, 0, 0, 1])
       }
     }
     inputs = dict(
@@ -617,12 +619,12 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
     # Test SP and TP Column Error vector
     self.helper.classificationVectorType = 2
-    self.helper._prevPredictedColumns = numpy.array(
+    self.helper._prevPredictedColumns = cupy.array(
         [1, 0, 0, 0, 1]).nonzero()[0]
     vector = self.helper.constructClassificationRecord(inputs)
     self.assertEqual(vector.anomalyVector, [0, 1, 4])
 
-    self.helper._prevPredictedColumns = numpy.array(
+    self.helper._prevPredictedColumns = cupy.array(
         [1, 0, 1, 0, 0]).nonzero()[0]
     vector = self.helper.constructClassificationRecord(inputs)
     self.assertEqual(vector.anomalyVector, [0, 1, 4, 7])
@@ -638,7 +640,7 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     state = {
       "ROWID": 0,
       "anomalyScore": 1.0,
-      "anomalyVector": numpy.array([1, 0, 0, 0, 1]),
+      "anomalyVector": cupy.array([1, 0, 0, 0, 1]),
       "anomalyLabel": "Label"
     }
     record = _CLAClassificationRecord(**state)

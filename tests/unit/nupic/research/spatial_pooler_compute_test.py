@@ -22,6 +22,7 @@
 
 import time
 import numpy
+import cupy
 import unittest2 as unittest
 
 from nupic.support.unittesthelpers.algorithm_test_helpers \
@@ -57,8 +58,8 @@ class SpatialPoolerComputeTest(unittest.TestCase):
     inputMatrix = (
       randomState.rand(numRecords,inputSize) > 0.8).astype(uintType)
 
-    y = numpy.zeros(columnDimensions, dtype = uintType)
-    dutyCycles = numpy.zeros(columnDimensions, dtype = uintType)
+    y = cupy.zeros(columnDimensions, dtype = uintType)
+    dutyCycles = cupy.zeros(columnDimensions, dtype = uintType)
 
     # With learning on we should get the requested number of winners
     for v in inputMatrix:

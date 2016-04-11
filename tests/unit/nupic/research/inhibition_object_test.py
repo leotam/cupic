@@ -28,6 +28,7 @@ TODO: Fix this up to be more unit testy.
 """
 
 import numpy
+import cupy
 
 import unittest2 as unittest
 
@@ -92,20 +93,20 @@ class InhibitionObjectTest(unittest.TestCase):
                                        spTest.random))
 
     spTest._updateInhibitionObj()
-    boostFactors = numpy.ones(columnDimensions)
+    boostFactors = cupy.ones(columnDimensions)
 
     for i in range(testIter):
       spTest._iterNum = i
       # random binary input
-      input_ = numpy.zeros((1, inputLen))
+      input_ = cupy.zeros((1, inputLen))
       nonzero = numpy.random.random(inputLen)
-      input_[0][numpy.where (nonzero < float(w)/float(n))] = 1
+      input_[0][cupy.where (nonzero < float(w)/float(n))] = 1
 
       # overlap step
       spTest._computeOverlapsFP(input_,
                                 stimulusThreshold=spTest.stimulusThreshold)
       spTest._overlaps *= boostFactors
-      onCellIndices = numpy.where(spTest._overlaps > 0)
+      onCellIndices = cupy.where(spTest._overlaps > 0)
       spTest._onCells.fill(0)
       spTest._onCells[onCellIndices] = 1
       denseOn = spTest._onCells

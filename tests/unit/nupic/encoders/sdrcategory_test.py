@@ -23,6 +23,7 @@
 """Unit tests for SDR Category encoder"""
 
 import numpy
+import cupy
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import tempfile
 import unittest
@@ -129,7 +130,7 @@ class SDRCategoryEncoderTest(unittest.TestCase):
 
 
     # add two reps together
-    newrep = ((us + unknown) > 0).astype(numpy.uint8)
+    newrep = ((us + unknown) > 0).astype(cupy.uint8)
     x = s.decode(newrep)
     name =x[0]["foo"][1]
     if name != "US <UNKNOWN>" and name != "<UNKNOWN> US":
@@ -216,7 +217,7 @@ class SDRCategoryEncoderTest(unittest.TestCase):
     s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, name="foo", verbosity=2,
                            forced=True)
 
-    encoded = numpy.zeros(fieldWidth)
+    encoded = cupy.zeros(fieldWidth)
     self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")
 
     s.encodeIntoArray("catA", encoded)

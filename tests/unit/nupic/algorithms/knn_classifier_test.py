@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy as np
+import cupy as np
 import unittest
 
 from nupic.algorithms.KNNClassifier import KNNClassifier
@@ -39,28 +39,28 @@ class KNNClassifierTest(unittest.TestCase):
     #
     # tests: if not self.relativeThreshold:
     outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
-    self.assertTrue(np.array_equal(np.array([0, 1, 3, 7, 11], dtype=np.int32),
+    self.assertTrue(numpy.array_equal(np.array([0, 1, 3, 7, 11], dtype=np.int32),
       outputPattern))
 
     # tests: elif self.sparseThreshold > 0:
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0,
       relativeThreshold=True, sparseThreshold=.2)
     outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
-    self.assertTrue(np.array_equal(np.array([0, 0, 3, 7, 11], dtype=np.int32),
+    self.assertTrue(numpy.array_equal(np.array([0, 0, 3, 7, 11], dtype=np.int32),
       outputPattern))
 
     # tests: if doWinners:
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0,
       relativeThreshold=True, sparseThreshold=.2, numWinners=2)
     outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
-    self.assertTrue(np.array_equal(np.array([0, 0, 0, 0, 0], dtype=np.int32),
+    self.assertTrue(numpy.array_equal(np.array([0, 0, 0, 0, 0], dtype=np.int32),
       outputPattern))
 
     # tests: Do binarization
     classifier = KNNClassifier(distanceMethod="norm", distanceNorm=2.0,
       relativeThreshold=True, sparseThreshold=.2, doBinarization=True)
     outputPattern = classifier._sparsifyVector(inputPattern, doWinners=True)
-    self.assertTrue(np.array_equal(np.array(
+    self.assertTrue(numpy.array_equal(np.array(
       [0., 0., 1., 1., 1.], dtype=np.float32), outputPattern))
 
 
@@ -355,7 +355,7 @@ class KNNClassifierTest(unittest.TestCase):
 
     # Check that the full set of partition ids is what we expect
     self.assertItemsEqual(classifier.getPartitionIdPerPattern(),
-                          [433, 213, np.inf, 433, 413])
+                          [433, 213, numpy.inf, 433, 413])
     self.assertItemsEqual(classifier.getPartitionIdList(),[433, 413, 213])
 
     # Remove two rows - all indices shift down

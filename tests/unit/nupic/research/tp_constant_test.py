@@ -25,7 +25,8 @@ This file tests that we can learn and predict the particularly vexing case of a
 single constant signal!
 """
 
-import numpy as np
+import cupy as np
+import numpy
 
 import unittest2 as unittest
 
@@ -35,7 +36,7 @@ from nupic.research.TP10X2 import TP10X2
 
 _SEED = 42
 VERBOSITY = 1
-np.random.seed(_SEED)
+numpy.random.seed(_SEED)
 
 
 
