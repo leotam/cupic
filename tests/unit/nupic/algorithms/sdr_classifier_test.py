@@ -109,7 +109,7 @@ class SDRClassifierTest(unittest.TestCase):
   def testBucketIdxNumpyInt64Input(self):
     c = self._classifier([1], 0.1, 0.1, 0)
     result = c.compute(0, [1, 5, 9],
-                       {"bucketIdx": cupy.int64(4), "actValue": 34.7}, True,
+                       {"bucketIdx": numpy.int64(4), "actValue": 34.7}, True,
                        True)
     self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
     self.assertEqual(len(result["actualValues"]), 1)
