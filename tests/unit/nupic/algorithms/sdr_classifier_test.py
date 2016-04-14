@@ -101,7 +101,7 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertEqual(type(result["actualValues"]), list)
     self.assertEqual(len(result["actualValues"]), 1)
     self.assertEqual(type(result["actualValues"][0]), float)
-    self.assertEqual(type(result[1]), cupy.ndarray)
+    self.assertEqual(type(result[1]), numpy.ndarray)
     self.assertEqual(result[1].itemsize, 8)
     self.assertAlmostEqual(result["actualValues"][0], 34.7, places=5)
 
@@ -109,7 +109,7 @@ class SDRClassifierTest(unittest.TestCase):
   def testBucketIdxNumpyInt64Input(self):
     c = self._classifier([1], 0.1, 0.1, 0)
     result = c.compute(0, [1, 5, 9],
-                       {"bucketIdx": numpy.int64(4), "actValue": 34.7}, True,
+                       {"bucketIdx": cupy.int64(4), "actValue": 34.7}, True,
                        True)
     self.assertSetEqual(set(result.keys()), set(("actualValues", 1)))
     self.assertEqual(len(result["actualValues"]), 1)
