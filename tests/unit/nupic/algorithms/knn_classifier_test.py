@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import cupy as np
+import numpy as np
 import unittest
 
 from nupic.algorithms.KNNClassifier import KNNClassifier

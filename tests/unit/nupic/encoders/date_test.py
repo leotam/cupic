@@ -24,6 +24,7 @@
 
 import datetime
 import numpy
+import cupy
 import tempfile
 from nupic.encoders.base import defaultDtype
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
