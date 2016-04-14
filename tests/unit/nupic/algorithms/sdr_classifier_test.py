@@ -28,7 +28,7 @@ import types
 import unittest2 as unittest
 
 import numpy
-# import numpy
+import cupy
 
 from nupic.algorithms.sdr_classifier import SDRClassifier
 
@@ -101,7 +101,7 @@ class SDRClassifierTest(unittest.TestCase):
     self.assertEqual(type(result["actualValues"]), list)
     self.assertEqual(len(result["actualValues"]), 1)
     self.assertEqual(type(result["actualValues"][0]), float)
-    self.assertEqual(type(result[1]), numpy.ndarray)
+    self.assertEqual(type(result[1]), cupy.ndarray)
     self.assertEqual(result[1].itemsize, 8)
     self.assertAlmostEqual(result["actualValues"][0], 34.7, places=5)
 
@@ -545,8 +545,8 @@ class SDRClassifierTest(unittest.TestCase):
     recordNum = 0
 
     # generate 2 SDRs with 2 shared bits
-    SDR1 = numpy.arange(0, 39, step=2)
-    SDR2 = numpy.arange(1, 40, step=2)
+    SDR1 = cupy.arange(0, 39, step=2)
+    SDR2 = cupy.arange(1, 40, step=2)
     SDR2[3] = SDR1[5]
     SDR2[5] = SDR1[11]
 
