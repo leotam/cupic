@@ -121,7 +121,7 @@ class CoordinateEncoderTest(unittest.TestCase):
   @patch.object(CoordinateEncoder, "_orderForCoordinate")
   def testTopWCoordinates(self, mockOrderForCoordinate):
     # Mock orderForCoordinate
-    mockFn = lambda coordinate: np.sum(coordinate) / 5.0
+    mockFn = lambda coordinate: numpy.sum(coordinate) / 5.0
     mockOrderForCoordinate.side_effect = mockFn
 
     coordinates = np.array([[1], [2], [3], [4], [5]])
