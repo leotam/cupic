@@ -21,8 +21,8 @@
 # ----------------------------------------------------------------------
 
 # import numpy as np
-import cupy as np
-import numpy
+import numpy as np
+# import numpy
 
 import tempfile
 import unittest
@@ -121,7 +121,7 @@ class CoordinateEncoderTest(unittest.TestCase):
   @patch.object(CoordinateEncoder, "_orderForCoordinate")
   def testTopWCoordinates(self, mockOrderForCoordinate):
     # Mock orderForCoordinate
-    mockFn = lambda coordinate: numpy.sum(coordinate) / 5.0
+    mockFn = lambda coordinate: np.sum(coordinate) / 5.0
     mockOrderForCoordinate.side_effect = mockFn
 
     coordinates = np.array([[1], [2], [3], [4], [5]])
@@ -178,7 +178,7 @@ class CoordinateEncoderTest(unittest.TestCase):
 
     # Test that we get the same output for the same input
     output2 = encode(encoder, coordinate, radius)
-    self.assertTrue(numpy.array_equal(output2, output1))
+    self.assertTrue(np.array_equal(output2, output1))
 
 
   def testEncodeSaturateArea(self):
@@ -310,7 +310,7 @@ class CoordinateEncoderTest(unittest.TestCase):
     radius = 5
     output2 = encode(encoder, coordinate, radius)
 
-    self.assertTrue(numpy.array_equal(output1, output2))
+    self.assertTrue(np.array_equal(output1, output2))
 
 
 def encode(encoder, coordinate, radius):
