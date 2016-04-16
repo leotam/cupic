@@ -30,7 +30,7 @@ import unittest2 as unittest
 import cupy
 from nupic.bindings.math import SM32, SM_01_32_32
 
-_RGEN = cupy.random.RandomState(37)
+_RGEN = numpy.random.RandomState(37)
 
 
 
