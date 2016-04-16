@@ -22,8 +22,8 @@
 
 """Unit tests for date encoder"""
 
+# import numpy
 import numpy
-import cupy
 import itertools
 import tempfile
 from nupic.encoders.base import defaultDtype
@@ -80,35 +80,35 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertEqual(l.getDescription(), [("scalar", 0)])
     self.assertTrue(numpy.array_equal(
       l.encode(3),
-      cupy.array([0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      numpy.array([0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                   dtype=defaultDtype)))
     self.assertTrue(numpy.array_equal(l.encode(3.1), l.encode(3)))
     self.assertTrue(numpy.array_equal(
       l.encode(3.5),
-      cupy.array([0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+      numpy.array([0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
                   dtype=defaultDtype)))
     self.assertTrue(numpy.array_equal(l.encode(3.6), l.encode(3.5)))
     self.assertTrue(numpy.array_equal(l.encode(3.7), l.encode(3.5)))
     self.assertTrue(numpy.array_equal(
       l.encode(4),
-      cupy.array([0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+      numpy.array([0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
                    dtype=defaultDtype)))
 
     self.assertTrue(numpy.array_equal(
       l.encode(1),
-      cupy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      numpy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                   dtype=defaultDtype)))
     self.assertTrue(numpy.array_equal(
       l.encode(1.5),
-      cupy.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      numpy.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                   dtype=defaultDtype)))
     self.assertTrue(numpy.array_equal(
       l.encode(7),
-      cupy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+      numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
                   dtype=defaultDtype)))
     self.assertTrue(numpy.array_equal(
       l.encode(7.5),
-      cupy.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+      numpy.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
                   dtype=defaultDtype)))
 
     self.assertEqual(l.resolution, 0.5)
@@ -175,7 +175,7 @@ class ScalarEncoderTest(unittest.TestCase):
                       periodic=True, forced=True)
 
     # Test with a "hole"
-    decoded = l.decode(cupy.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))
+    decoded = l.decode(numpy.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 1)
     (ranges, _) = fieldsDict.values()[0]
@@ -183,7 +183,7 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertTrue(numpy.array_equal(ranges[0], [7.5, 7.5]))
 
     # Test with something wider than w, and with a hole, and wrapped
-    decoded = l.decode(cupy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))
+    decoded = l.decode(numpy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 1)
     (ranges, _) = fieldsDict.values()[0]
@@ -192,7 +192,7 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertTrue(numpy.array_equal(ranges[1], [1, 1]))
 
     # Test with something wider than w, no hole
-    decoded = l.decode(cupy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
+    decoded = l.decode(numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 1)
     (ranges, _) = fieldsDict.values()[0]
@@ -200,7 +200,7 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertTrue(numpy.array_equal(ranges[0], [1.5, 2.5]))
 
     # Test with 2 ranges
-    decoded = l.decode(cupy.array([1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]))
+    decoded = l.decode(numpy.array([1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]))
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 1)
     (ranges, _) = fieldsDict.values()[0]
@@ -209,7 +209,7 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertTrue(numpy.array_equal(ranges[1], [5.5, 6.0]))
 
     # Test with 2 ranges, 1 of which is narrower than w
-    decoded = l.decode(cupy.array([0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]))
+    decoded = l.decode(numpy.array([0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]))
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 1)
     (ranges, _) = fieldsDict.values()[0]
@@ -233,15 +233,15 @@ class ScalarEncoderTest(unittest.TestCase):
                       periodic=False, forced=True)
     self.assertTrue(numpy.array_equal(
       l.encode(1),
-      cupy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                   dtype=defaultDtype)))
     self.assertTrue(numpy.array_equal(
       l.encode(2),
-      cupy.array([0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+      numpy.array([0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                   dtype=defaultDtype)))
     self.assertTrue(numpy.array_equal(
       l.encode(10),
-      cupy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+      numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
                   dtype=defaultDtype)))
 
     # Test that we get the same encoder when we construct it using resolution
@@ -289,14 +289,14 @@ class ScalarEncoderTest(unittest.TestCase):
 
 
     # Make sure we can fill in holes
-    decoded = l.decode(cupy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1]))
+    decoded = l.decode(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1]))
     (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
     (ranges, _) = fieldsDict.values()[0]
     self.assertEqual(len(ranges), 1)
     self.assertTrue(numpy.array_equal(ranges[0], [10, 10]))
 
-    decoded = l.decode(cupy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1]))
+    decoded = l.decode(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1]))
     (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
     (ranges, _) = fieldsDict.values()[0]
@@ -307,10 +307,10 @@ class ScalarEncoderTest(unittest.TestCase):
     l = ScalarEncoder(name="scalar", n=14, w=3, minval=1, maxval=10,
                       periodic=False, forced=True)
     decoded = l.topDownCompute(
-      cupy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1]))[0]
+      numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1]))[0]
     self.assertEqual(decoded.value, 10)
     decoded = l.topDownCompute(
-      cupy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))[0]
+      numpy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))[0]
     self.assertEqual(decoded.value, 1)
 
     #Make sure only the last and first encoding encodes to max and min, and
@@ -321,7 +321,7 @@ class ScalarEncoderTest(unittest.TestCase):
       iterlist = [0 for _ in range(140)]
       for j in range(i, i+3):
         iterlist[j] =1
-      npar = cupy.array(iterlist)
+      npar = numpy.array(iterlist)
       decoded = l.topDownCompute(npar)[0]
       self.assertLessEqual(decoded.value, 141)
       self.assertGreaterEqual(decoded.value, 1)
