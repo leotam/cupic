@@ -20,8 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import cupy as np
-import numpy
+import numpy as np
+# import numpy
 import tempfile
 import unittest
 
@@ -192,7 +192,7 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     # Compare a new value with the original and deserialized.
     encoding3 = encode(original, speed, -122.229294, 37.486982, 1000)
     encoding4 = encode(encoder, speed, -122.229294, 37.486982, 1000)
-    self.assertTrue(numpy.array_equal(encoding3, encoding4))
+    self.assertTrue(np.array_equal(encoding3, encoding4))
 
 
 def encode(encoder, speed, longitude, latitude, altitude=None):
