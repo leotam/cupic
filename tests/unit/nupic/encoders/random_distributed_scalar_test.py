@@ -25,7 +25,7 @@ import sys
 import tempfile
 import unittest2 as unittest
 # import numpy
-import cupy
+import numpy
 
 from nupic.encoders.base import defaultDtype
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
@@ -320,12 +320,12 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     encoder = RandomDistributedScalarEncoder(name="encoder", resolution=1.0,
                                              w=5, n=5*20)
     midIdx = encoder._maxBuckets/2
-    encoder.bucketMap[midIdx-2] = cupy.array(range(3, 8))
-    encoder.bucketMap[midIdx-1] = cupy.array(range(4, 9))
-    encoder.bucketMap[midIdx]   = cupy.array(range(5, 10))
-    encoder.bucketMap[midIdx+1] = cupy.array(range(6, 11))
-    encoder.bucketMap[midIdx+2] = cupy.array(range(7, 12))
-    encoder.bucketMap[midIdx+3] = cupy.array(range(8, 13))
+    encoder.bucketMap[midIdx-2] = numpy.array(range(3, 8))
+    encoder.bucketMap[midIdx-1] = numpy.array(range(4, 9))
+    encoder.bucketMap[midIdx]   = numpy.array(range(5, 10))
+    encoder.bucketMap[midIdx+1] = numpy.array(range(6, 11))
+    encoder.bucketMap[midIdx+2] = numpy.array(range(7, 12))
+    encoder.bucketMap[midIdx+3] = numpy.array(range(8, 13))
     encoder.minIndex = midIdx - 2
     encoder.maxIndex = midIdx + 3
 
@@ -354,14 +354,14 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     encoder = RandomDistributedScalarEncoder(name="encoder", resolution=1.0,
                                              w=5, n=5*20)
     midIdx = encoder._maxBuckets/2
-    encoder.bucketMap[midIdx-3] = cupy.array(range(4, 9)) # Not ok with
+    encoder.bucketMap[midIdx-3] = numpy.array(range(4, 9)) # Not ok with
                                                            # midIdx-1
-    encoder.bucketMap[midIdx-2] = cupy.array(range(3, 8))
-    encoder.bucketMap[midIdx-1] = cupy.array(range(4, 9))
-    encoder.bucketMap[midIdx]   = cupy.array(range(5, 10))
-    encoder.bucketMap[midIdx+1] = cupy.array(range(6, 11))
-    encoder.bucketMap[midIdx+2] = cupy.array(range(7, 12))
-    encoder.bucketMap[midIdx+3] = cupy.array(range(8, 13))
+    encoder.bucketMap[midIdx-2] = numpy.array(range(3, 8))
+    encoder.bucketMap[midIdx-1] = numpy.array(range(4, 9))
+    encoder.bucketMap[midIdx]   = numpy.array(range(5, 10))
+    encoder.bucketMap[midIdx+1] = numpy.array(range(6, 11))
+    encoder.bucketMap[midIdx+2] = numpy.array(range(7, 12))
+    encoder.bucketMap[midIdx+3] = numpy.array(range(8, 13))
     encoder.minIndex = midIdx - 3
     encoder.maxIndex = midIdx + 3
 
@@ -404,33 +404,33 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     encoder = RandomDistributedScalarEncoder(name="encoder", resolution=1.0,
                                              n=500)
 
-    r1 = cupy.array([1, 2, 3, 4, 5, 6])
-    r2 = cupy.array([1, 2, 3, 4, 5, 6])
+    r1 = numpy.array([1, 2, 3, 4, 5, 6])
+    r2 = numpy.array([1, 2, 3, 4, 5, 6])
     self.assertEqual(encoder._countOverlap(r1, r2), 6,
                      "_countOverlap result is incorrect")
 
-    r1 = cupy.array([1, 2, 3, 4, 5, 6])
-    r2 = cupy.array([1, 2, 3, 4, 5, 7])
+    r1 = numpy.array([1, 2, 3, 4, 5, 6])
+    r2 = numpy.array([1, 2, 3, 4, 5, 7])
     self.assertEqual(encoder._countOverlap(r1, r2), 5,
                      "_countOverlap result is incorrect")
 
-    r1 = cupy.array([1, 2, 3, 4, 5, 6])
-    r2 = cupy.array([6, 5, 4, 3, 2, 1])
+    r1 = numpy.array([1, 2, 3, 4, 5, 6])
+    r2 = numpy.array([6, 5, 4, 3, 2, 1])
     self.assertEqual(encoder._countOverlap(r1, r2), 6,
                      "_countOverlap result is incorrect")
 
-    r1 = cupy.array([1, 2, 8, 4, 5, 6])
-    r2 = cupy.array([1, 2, 3, 4, 9, 6])
+    r1 = numpy.array([1, 2, 8, 4, 5, 6])
+    r2 = numpy.array([1, 2, 3, 4, 9, 6])
     self.assertEqual(encoder._countOverlap(r1, r2), 4,
                      "_countOverlap result is incorrect")
 
-    r1 = cupy.array([1, 2, 3, 4, 5, 6])
-    r2 = cupy.array([1, 2, 3])
+    r1 = numpy.array([1, 2, 3, 4, 5, 6])
+    r2 = numpy.array([1, 2, 3])
     self.assertEqual(encoder._countOverlap(r1, r2), 3,
                      "_countOverlap result is incorrect")
 
-    r1 = cupy.array([7, 8, 9, 10, 11, 12])
-    r2 = cupy.array([1, 2, 3, 4, 5, 6])
+    r1 = numpy.array([7, 8, 9, 10, 11, 12])
+    r2 = numpy.array([1, 2, 3, 4, 5, 6])
     self.assertEqual(encoder._countOverlap(r1, r2), 0,
                      "_countOverlap result is incorrect")
 
@@ -443,7 +443,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     sys.stdout = _stringio = StringIO()
     encoder = RandomDistributedScalarEncoder(name="mv", resolution=1.0,
                                              verbosity=0)
-    output = cupy.zeros(encoder.getWidth(), dtype=defaultDtype)
+    output = numpy.zeros(encoder.getWidth(), dtype=defaultDtype)
     encoder.encodeIntoArray(23.0, output)
     encoder.getBucketIndices(23.0)
     sys.stdout = _stdout
