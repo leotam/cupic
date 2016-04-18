@@ -22,7 +22,7 @@
 """Unit tests for the RecordSensor region."""
 
 # import numpy
-import cupy
+import numpy
 import unittest2 as unittest
 
 from nupic.engine import Network
@@ -44,7 +44,7 @@ class RecordSensorRegionTest(unittest.TestCase):
     data = {"_timestamp": None, "_category": [0, 1], "label": "0 1",
             "_sequenceId": 0, "y": 2.624902024, "x": 0.0,
             "_timestampRecordIdx": None, "_reset": 0}
-    sensorOutput = cupy.array([0, 0], dtype="int32")
+    sensorOutput = numpy.array([0, 0], dtype="int32")
     sensor.populateCategoriesOut(data["_category"], sensorOutput)
     
     self.assertSequenceEqual([0, 1], sensorOutput.tolist(),
@@ -52,7 +52,7 @@ class RecordSensorRegionTest(unittest.TestCase):
 
     # Test for # of output categories > max
     data["_category"] = [1, 2, 3]
-    sensorOutput = cupy.array([0, 0], dtype="int32")
+    sensorOutput = numpy.array([0, 0], dtype="int32")
     sensor.populateCategoriesOut(data["_category"], sensorOutput)
     
     self.assertSequenceEqual([1, 2], sensorOutput.tolist(),
@@ -60,7 +60,7 @@ class RecordSensorRegionTest(unittest.TestCase):
     
     # Test for # of output categories < max
     data["_category"] = [3]
-    sensorOutput = cupy.array([0, 0], dtype="int32")
+    sensorOutput = numpy.array([0, 0], dtype="int32")
     sensor.populateCategoriesOut(data["_category"], sensorOutput)
     
     self.assertSequenceEqual([3, -1], sensorOutput.tolist(),
@@ -68,7 +68,7 @@ class RecordSensorRegionTest(unittest.TestCase):
     
     # Test for no output categories
     data["_category"] = [None]
-    sensorOutput = cupy.array([0, 0], dtype="int32")
+    sensorOutput = numpy.array([0, 0], dtype="int32")
     sensor.populateCategoriesOut(data["_category"], sensorOutput)
 
     self.assertSequenceEqual([-1, -1], sensorOutput.tolist(),
