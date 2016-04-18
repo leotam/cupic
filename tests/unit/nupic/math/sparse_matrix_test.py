@@ -37,7 +37,7 @@ import unittest2 as unittest
 
 from nupic.bindings.math import *
 
-rgen = cupy.random.RandomState(37)
+rgen = numpy.random.RandomState(37)
 
 
 
@@ -306,7 +306,7 @@ class SparseMatrixTest(unittest.TestCase):
           seg_begin += seg_size; seg_end += seg_size
 
       k = float(s.nCols() / seg_size)
-      result = cupy.power(result, 1.0 / k)
+      result = numpy.power(result, 1.0 / k)
 
       too_small = True
       for i in range(s.nRows()):
