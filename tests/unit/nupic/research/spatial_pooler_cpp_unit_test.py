@@ -22,7 +22,7 @@
 
 import unittest
 
-import cupy as np
+import numpy as np
 import numpy
 from nupic.bindings.math import GetNTAReal
 from nupic.bindings.algorithms import SpatialPooler
